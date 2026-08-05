@@ -10,9 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            KecamatanDesaSeeder::class,
             AdminUserSeeder::class,
-            // Tambahkan KecamatanDesaSeeder di sini setelah Anda punya data riil
-            // dari Bapperida (309 desa) — bisa di-generate dari file Excel/CSV mereka.
         ]);
     }
 }
