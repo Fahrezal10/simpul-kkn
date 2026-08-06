@@ -1,7 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\PerguruanTinggiRegistrationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
+use App\Http\Controllers\Bapperida\PermohonanVerificationController;
+use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\Shared\DashboardController;
+use App\Http\Controllers\Shared\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,15 +27,30 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])
     ->name('login');
 
 Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('guest');
+    ->middleware(['guest', 'throttle:10,1']); // cegah brute-force login
 
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+/* ===== UC-01: Registrasi akun Perguruan Tinggi (guest) ===== */
+Route::get('/register-pt', [PerguruanTinggiRegistrationController::class, 'showRegistrationForm'])
+    ->middleware('guest')
+    ->name('register-pt.form');
+
+Route::post('/register-pt', [PerguruanTinggiRegistrationController::class, 'register'])
+    ->middleware('guest')
+    ->name('register-pt.store');
+
 /* ===== Dashboard (redirect per-role) ===== */
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    /* SYS-01: Notifikasi in-app */
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::post('/notifications/ajax/{id}/read', [NotificationController::class, 'markAsReadAjax'])->name('notifications.mark-as-read-ajax');
 
     // Placeholder modul per role — diisi bertahap sesuai fase pengembangan.
     // Contoh: Bapperida memverifikasi permohonan (Fase 1), dsb.
@@ -41,6 +61,40 @@ Route::middleware('auth')->group(function () {
     Route::get('/perguruan-tinggi', function () {
         return view('dashboard.index', ['roleSlug' => 'perguruan-tinggi', 'roleLabel' => 'Perguruan Tinggi']);
     })->middleware('role:perguruan_tinggi,superadmin')->name('perguruan-tinggi.dashboard');
+
+    /* ===== UC-01: Persetujuan akun PT oleh Bapperida ===== */
+    Route::prefix('bapperida')->middleware('role:bapperida,superadmin')->group(function () {
+        Route::get('perguruan-tinggi', [PerguruanTinggiApprovalController::class, 'index'])
+            ->name('bapperida.pt.index');
+        Route::get('perguruan-tinggi/data', [PerguruanTinggiApprovalController::class, 'data'])
+            ->name('bapperida.pt.data');
+        Route::get('perguruan-tinggi/{perguruanTinggi}', [PerguruanTinggiApprovalController::class, 'show'])
+            ->name('bapperida.pt.show');
+        Route::post('perguruan-tinggi/{perguruanTinggi}/approve', [PerguruanTinggiApprovalController::class, 'approve'])
+            ->name('bapperida.pt.approve');
+        Route::post('perguruan-tinggi/{perguruanTinggi}/reject', [PerguruanTinggiApprovalController::class, 'reject'])
+            ->name('bapperida.pt.reject');
+
+        Route::get('permohonan', [PermohonanVerificationController::class, 'index'])
+            ->name('bapperida.permohonan.index');
+        Route::get('permohonan/data', [PermohonanVerificationController::class, 'data'])
+            ->name('bapperida.permohonan.data');
+        Route::get('permohonan/{permohonan}', [PermohonanVerificationController::class, 'show'])
+            ->name('bapperida.permohonan.show');
+        Route::post('permohonan/{permohonan}/verify', [PermohonanVerificationController::class, 'verify'])
+            ->name('bapperida.permohonan.verify');
+        Route::post('permohonan/{permohonan}/reject', [PermohonanVerificationController::class, 'reject'])
+            ->name('bapperida.permohonan.reject');
+    });
+
+    /* ===== UC-02/03/04: Permohonan KKN oleh PT ===== */
+    Route::prefix('pt')->middleware('role:perguruan_tinggi,superadmin')->group(function () {
+        Route::get('permohonan', [PermohonanController::class, 'index'])->name('perguruan-tinggi.permohonan.index');
+        Route::get('permohonan/data', [PermohonanController::class, 'data'])->name('perguruan-tinggi.permohonan.data');
+        Route::get('permohonan/create', [PermohonanController::class, 'create'])->name('perguruan-tinggi.permohonan.create');
+        Route::post('permohonan', [PermohonanController::class, 'store'])->name('perguruan-tinggi.permohonan.store');
+        Route::get('permohonan/{permohonan}', [PermohonanController::class, 'show'])->name('perguruan-tinggi.permohonan.show');
+    });
 
     Route::get('/mahasiswa', function () {
         return view('dashboard.index', ['roleSlug' => 'mahasiswa', 'roleLabel' => 'Mahasiswa']);

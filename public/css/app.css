@@ -300,8 +300,8 @@ textarea.form-control { height: auto; }
 }
 
 .user-avatar {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: var(--primary);
     color: #fff;
@@ -309,7 +309,9 @@ textarea.form-control { height: auto; }
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
 /* §10.4 Container max-width 1320px di desktop besar */
@@ -589,3 +591,97 @@ textarea.form-control { height: auto; }
 }
 .empty-state .bi { font-size: 2.5rem; }
 .empty-state h6 { color: var(--neutral-600); }
+/* ==========================================================================
+   Fase 1 — Form, tabel dinamis, notifikasi, detail
+   ========================================================================== */
+
+/* Section title dalam form registrasi/permohonan */
+.form-section-title {
+    font-family: 'Poppins', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.75rem;
+}
+
+/* Tabel detail (label kiri abu, nilai kanan) */
+.detail-table th {
+    width: 190px;
+    white-space: nowrap;
+    vertical-align: top;
+    font-weight: 500;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+/* Notifikasi */
+.notification-item {
+    border-bottom: 1px solid var(--border);
+}
+.notification-item:last-child { border-bottom: 0; }
+.notification-unread { background: rgba(27, 58, 107, 0.04); }
+.notification-icon { font-size: 1.2rem; }
+
+/* Tombol hapus baris tabel mahasiswa dinamis */
+.btn-remove-row { line-height: 1; }
+.dpl-baru-field .form-control { margin-top: 0.35rem; }
+
+/* ==========================================================================
+   Fase 1 — Dropdown popup notifikasi (SYS-01)
+   ========================================================================== */
+.notification-panel {
+    width: 360px;
+    max-width: 92vw;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    padding: 0;
+    overflow: hidden;
+}
+
+.notification-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.notification-panel-body {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notification-list-item {
+    white-space: normal;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+.notification-list-item:last-child { border-bottom: 0; }
+.notification-list-unread { background: rgba(27, 58, 107, 0.04); }
+.notification-list-icon { font-size: 1.05rem; margin-top: 2px; }
+.notification-list-msg { font-size: 13px; color: var(--neutral-900); }
+
+.notification-list-empty {
+    text-align: center;
+    padding: 28px 16px;
+    color: var(--neutral-400);
+}
+.notification-list-empty .bi { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+
+.notification-panel-footer {
+    display: block;
+    text-align: center;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    border-top: 1px solid var(--border);
+    background: var(--neutral-100);
+}
+.notification-panel-footer:hover { background: rgba(27, 58, 107, 0.06); }

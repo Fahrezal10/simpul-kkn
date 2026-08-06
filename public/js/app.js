@@ -52,4 +52,39 @@
             new bootstrap.Tooltip(el);
         });
     }
+
+    /* --- SYS-01: Klik notifikasi pada dropdown popup ---
+       Tandai dibaca via AJAX, perbarui badge, lalu navigasi ke halaman sumber. */
+    document.addEventListener('click', function (e) {
+        var item = e.target.closest('.notification-list-item[data-notif-id]');
+        if (!item) return;
+
+        e.preventDefault();
+        var id = item.getAttribute('data-notif-id');
+        var url = item.getAttribute('href');
+        var csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (!csrfToken) return;
+
+        fetch('/notifications/ajax/' + id + '/read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                'Accept': 'application/json'
+            }
+        }).then(function (res) { return res.json(); }).then(function (data) {
+            // Update badge bila masih tersisa belum dibaca.
+            var badge = document.getElementById('notifCount');
+            if (badge) {
+                if (data.unreadCount > 0) {
+                    badge.textContent = data.unreadCount;
+                } else {
+                    badge.remove();
+                }
+            }
+            window.location.href = url;
+        }).catch(function () {
+            // Fallback: tetap navigasi bila AJAX gagal.
+            window.location.href = url;
+        });
+    });
 })();

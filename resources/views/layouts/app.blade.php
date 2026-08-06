@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SIMPUL-KKN') — SIMPUL-KKN</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon-indramayu.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,6 +37,34 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+
+                @php $role = optional(Auth::user()->role)->nama_role; @endphp
+
+                @if ($role === 'perguruan_tinggi' || $role === 'superadmin')
+                    <li class="nav-section">Perguruan Tinggi</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('perguruan-tinggi.permohonan.*') ? 'active' : '' }}" href="{{ route('perguruan-tinggi.permohonan.index') }}">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Permohonan KKN</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($role === 'bapperida' || $role === 'superadmin')
+                    <li class="nav-section">Bapperida</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.pt.*') ? 'active' : '' }}" href="{{ route('bapperida.pt.index') }}">
+                            <i class="bi bi-building-check"></i>
+                            <span>Persetujuan PT</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.permohonan.*') ? 'active' : '' }}" href="{{ route('bapperida.permohonan.index') }}">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>Verifikasi Permohonan</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
 
             <div class="sidebar-footer">
@@ -67,17 +96,85 @@
                     </div>
 
                     <div class="d-flex align-items-center gap-3">
-                        <button class="btn btn-link position-relative notification-btn" title="Notifikasi" data-bs-toggle="tooltip">
-                            <i class="bi bi-bell"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-amber">0</span>
-                        </button>
+                        {{-- SYS-01: Dropdown popup notifikasi in-app --}}
+                        @php
+                            $recentNotifs = Auth::user()->notifications()->limit(5)->get();
+                            $unreadCount  = Auth::user()->unreadNotifications->count();
+                        @endphp
+                        <div class="dropdown notification-dropdown" id="notificationDropdown">
+                            <button class="btn btn-link position-relative notification-btn" data-bs-toggle="dropdown"
+                                    data-bs-auto-close="outside" aria-expanded="false" title="Notifikasi">
+                                <i class="bi bi-bell"></i>
+                                @if ($unreadCount > 0)
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-amber" id="notifCount">
+                                        {{ $unreadCount }}
+                                    </span>
+                                @endif
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end notification-panel">
+                                <div class="notification-panel-header">
+                                    <span class="fw-semibold">Notifikasi</span>
+                                    @if ($recentNotifs->isNotEmpty())
+                                        <form method="POST" action="{{ route('notifications.mark-all-read') }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none text-primary">
+                                                Tandai semua dibaca
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                                <div class="notification-panel-body">
+                                    @forelse ($recentNotifs as $notification)
+                                        @php
+                                            $data = $notification->data;
+                                            $isUnread = is_null($notification->read_at);
+                                            $notifUrl = $data['url'] ?? route('notifications.index');
+                                        @endphp
+                                        <a href="{{ $notifUrl }}"
+                                           class="dropdown-item notification-list-item {{ $isUnread ? 'notification-list-unread' : '' }}"
+                                           data-notif-id="{{ $notification->id }}">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <i class="bi {{ ($data['status'] ?? '') === 'ditolak' ? 'bi-x-circle text-danger' : 'bi-info-circle text-primary' }} notification-list-icon"></i>
+                                                <div>
+                                                    <div class="notification-list-msg">{{ $data['message'] ?? 'Notifikasi' }}</div>
+                                                    <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="notification-list-empty text-muted">
+                                            <i class="bi bi-bell-slash"></i>
+                                            <div>Belum ada notifikasi</div>
+                                        </div>
+                                    @endforelse
+                                </div>
+                                <a href="{{ route('notifications.index') }}" class="notification-panel-footer">
+                                    Lihat semua notifikasi
+                                </a>
+                            </div>
+                        </div>
                         <div class="dropdown">
                             <button class="btn btn-link user-chip dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="user-avatar">{{ strtoupper(substr($user->nama ?? '?', 0, 1)) }}</span>
-                                <span class="user-name d-none d-md-inline">{{ $user->nama ?? '' }}</span>
+                                @php
+                                    // Inisial user: ambil huruf pertama dari maks. 2 kata pertama nama.
+                                    $initials = collect(preg_split('/\s+/', trim(Auth::user()->nama ?? '')))
+                                        ->filter()
+                                        ->take(2)
+                                        ->map(fn ($w) => strtoupper(mb_substr($w, 0, 1)))
+                                        ->implode('');
+                                    $initials = $initials ?: '?';
+                                @endphp
+                                <span class="user-avatar">{{ $initials }}</span>
+                                <span class="user-name d-none d-md-inline">{{ Auth::user()->nama ?? '' }}</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><span class="dropdown-item-text small text-muted">{{ $user->email ?? '' }}</span></li>
+                                <li><span class="dropdown-item-text small text-muted">{{ Auth::user()->email ?? '' }}</span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a href="{{ route('notifications.index') }}" class="dropdown-item">
+                                        <i class="bi bi-bell me-1"></i> Notifikasi
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="POST" action="{{ route('logout') }}">
@@ -116,6 +213,9 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}"></script>

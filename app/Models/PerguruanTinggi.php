@@ -20,6 +20,7 @@ class PerguruanTinggi extends Model
         'pic_telp',
         'dokumen_legalitas',
         'status_approval',
+        'catatan_penolakan',
     ];
 
     protected $casts = [

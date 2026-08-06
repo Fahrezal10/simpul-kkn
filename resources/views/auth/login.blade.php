@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk — SIMPUL-KKN</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon-indramayu.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,7 +110,7 @@
                 <div class="text-center">
                     <p class="text-muted small mb-2">Kampus Anda belum terdaftar di SIMPUL-KKN?</p>
                     <p class="mb-0">
-                        <a href="#" class="fw-semibold">Daftarkan Institusi Anda</a>
+                        <a href="{{ route('register-pt.form') }}" class="fw-semibold">Daftarkan Institusi Anda</a>
                     </p>
                     <p class="text-muted small mt-2 mb-0">Pendaftaran akan diverifikasi oleh Bapperida.</p>
                 </div>
