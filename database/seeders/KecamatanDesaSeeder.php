@@ -62,29 +62,34 @@ class KecamatanDesaSeeder extends Seeder
 
         $idx = 0;
         foreach ($kecamatan as $namaKec => $desas) {
-            $kecamatanId = DB::table('kecamatan')->insertGetId([
-                'nama_kecamatan' => $namaKec,
-                'kode_wilayah' => '3201' . str_pad(($idx + 1), 2, '0', STR_PAD_LEFT),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $kodeKec = '3201' . str_pad(($idx + 1), 2, '0', STR_PAD_LEFT);
+
+            $kecamatanId = DB::table('kecamatan')->updateOrInsert(
+                ['kode_wilayah' => $kodeKec],
+                ['nama_kecamatan' => $namaKec, 'updated_at' => now(), 'created_at' => now()]
+            ) ? DB::table('kecamatan')->where('kode_wilayah', $kodeKec)->value('id') : null;
+
             $idx++;
 
             foreach ($desas as $idxDesa => [$namaDesa, $populasi]) {
-                DB::table('desa')->insert([
-                    'user_id' => null, // operator desa diisi belakangan saat akun dibuat
-                    'kecamatan_id' => $kecamatanId,
-                    'nama_desa' => $namaDesa,
-                    'kode_wilayah' => '3201' . str_pad($idx, 2, '0', STR_PAD_LEFT)
-                                    . str_pad(($idxDesa + 1), 2, '0', STR_PAD_LEFT),
-                    'jumlah_penduduk' => $populasi,
-                    'luas_wilayah' => round(1.5 + (($idx + $idxDesa) % 9) * 0.6, 2),
-                    'latitude' => round($baseLat + ($idx + $idxDesa) * 0.002, 7),
-                    'longitude' => round($baseLng + (($idx * 2) + $idxDesa) * 0.003, 7),
-                    'profil_umum' => 'Data placeholder pengembangan. Menunggu profil resmi dari Bapperida.',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                $kodeDesa = '3201' . str_pad($idx, 2, '0', STR_PAD_LEFT)
+                            . str_pad(($idxDesa + 1), 2, '0', STR_PAD_LEFT);
+
+                DB::table('desa')->updateOrInsert(
+                    ['kode_wilayah' => $kodeDesa],
+                    [
+                        'user_id' => null, // operator desa diisi belakangan saat akun dibuat
+                        'kecamatan_id' => $kecamatanId,
+                        'nama_desa' => $namaDesa,
+                        'jumlah_penduduk' => $populasi,
+                        'luas_wilayah' => round(1.5 + (($idx + $idxDesa) % 9) * 0.6, 2),
+                        'latitude' => round($baseLat + ($idx + $idxDesa) * 0.002, 7),
+                        'longitude' => round($baseLng + (($idx * 2) + $idxDesa) * 0.003, 7),
+                        'profil_umum' => 'Data placeholder pengembangan. Menunggu profil resmi dari Bapperida.',
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
             }
         }
     }

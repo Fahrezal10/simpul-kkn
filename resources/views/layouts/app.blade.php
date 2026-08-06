@@ -40,10 +40,11 @@
 
             <div class="sidebar-footer">
                 <span class="role-badge">{{ strtoupper($roleLabel ?? '') }}</span>
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="mt-2">
                     @csrf
-                    <button type="submit" class="btn btn-outline-light btn-sm w-100 mt-2">
-                        <i class="bi bi-box-arrow-right me-1"></i> Keluar
+                    <button type="submit" class="btn btn-outline-light btn-sm sidebar-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Keluar</span>
                     </button>
                 </form>
             </div>
@@ -54,10 +55,16 @@
         <div class="app-main">
             <nav class="navbar app-navbar sticky-top">
                 <div class="container-fluid px-3 px-lg-4">
-                    <button class="btn btn-link navbar-toggler-btn d-lg-none" id="sidebarToggle" aria-label="Buka menu">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <span class="navbar-brand d-none d-lg-inline">Sistem Informasi Manajemen KKN</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-link navbar-toggler-btn d-lg-none" id="sidebarToggle" aria-label="Buka menu">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <button class="btn btn-link navbar-toggler-btn d-none d-lg-inline-flex sidebar-collapse-btn"
+                                id="sidebarCollapse" aria-label="Ciutkan sidebar" title="Ciutkan menu">
+                            <i class="bi bi-layout-sidebar"></i>
+                        </button>
+                        <span class="navbar-brand d-none d-lg-inline">Sistem Informasi Manajemen KKN</span>
+                    </div>
 
                     <div class="d-flex align-items-center gap-3">
                         <button class="btn btn-link position-relative notification-btn" title="Notifikasi" data-bs-toggle="tooltip">

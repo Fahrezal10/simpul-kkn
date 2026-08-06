@@ -233,37 +233,98 @@ Detail ERD, entitas, relasi, dan kamus data dibahas terpisah di **`03-erd.md`**.
 ## 10. UI/UX Design System
 
 ### 10.1 Filosofi Desain
-**"Governance meets Growth"** — perpaduan warna biru (kepercayaan, institusi pemerintah) dan hijau/teal (pembangunan, kolaborasi), mencerminkan peran mahasiswa KKN sebagai agen pembangunan daerah. Gaya visual: **formal namun bersih dan modern**, dapat diterima semua kalangan pengguna (pejabat daerah, akademisi, mahasiswa, hingga perangkat desa).
+**"Governance meets Growth"** — biru (kepercayaan, institusi) dipadukan teal (pembangunan, kolaborasi). Gaya: **formal, bersih, modern, padat informasi tapi tidak sesak** — prioritas keterbacaan dan efisiensi ruang, bukan dekorasi. Diterima semua kalangan: pejabat daerah, akademisi, mahasiswa, perangkat desa.
 
 ### 10.2 Palet Warna
 
 | Peran | Nama | Hex | Kegunaan |
 |---|---|---|---|
-| Primary | Deep Blue | `#1B3A6B` | Header, sidebar aktif, tombol utama |
-| Secondary | Teal/Emerald | `#0F9B8E` | Aksen, badge "aktif", grafik |
-| Accent | Amber | `#F2A93B` | Notifikasi, status "pending" |
-| Success | Green | `#2E9E5B` | Status selesai/approved |
-| Danger | Red | `#D64545` | Status ditolak/error |
-| Neutral Dark | Charcoal | `#1F2937` | Teks utama |
-| Neutral Light | Off-white | `#F5F7FA` | Background halaman |
-| Border/Muted | Light Gray | `#E2E8F0` | Garis, card border |
+| Primary | Deep Blue | `#1B3A6B` | Header, sidebar aktif, tombol utama, link |
+| Primary Hover | Deep Blue Dark | `#142C52` | State hover/active tombol primary |
+| Secondary | Teal/Emerald | `#0F9B8E` | Aksen, badge "aktif", grafik, tombol sekunder |
+| Accent | Amber | `#F2A93B` | Notifikasi, status "pending", highlight |
+| Success | Green | `#2E9E5B` | Status selesai/approved, alert sukses |
+| Danger | Red | `#D64545` | Status ditolak/error, alert gagal, tombol hapus |
+| Info | Sky Blue | `#3B82C4` | Alert informasi netral, tooltip |
+| Neutral 900 | Charcoal | `#1F2937` | Teks judul/utama |
+| Neutral 600 | Slate | `#4B5563` | Teks sekunder/label |
+| Neutral 400 | Gray | `#9CA3AF` | Placeholder, teks disabled |
+| Neutral 100 | Off-white | `#F5F7FA` | Background halaman |
+| Border | Light Gray | `#E2E8F0` | Garis, card border, table divider |
+| Surface | White | `#FFFFFF` | Background card, modal, tabel |
+
+**Kontras:** seluruh kombinasi teks-di-atas-background di atas sudah dicek memenuhi WCAG AA (rasio ≥4.5:1) untuk teks body.
 
 ### 10.3 Tipografi
-- **Heading:** Poppins atau Plus Jakarta Sans — tegas, modern, tetap formal
-- **Body:** Inter atau Nunito Sans — mudah dibaca di berbagai ukuran layar
-- **Skala:** basis 14–16px body; hierarki jelas h1–h6 dengan Bootstrap typography utility
 
-### 10.4 Prinsip Layout & Komponen
-- **Mobile-first responsive**, breakpoint standar Bootstrap 5 (`sm` 576px, `md` 768px, `lg` 992px, `xl` 1200px)
-- Sidebar collapsible di desktop → hamburger/off-canvas di mobile
-- Dashboard berbasis **card**, bukan tabel padat, terutama untuk ringkasan di mobile
-- Tabel data (DataTables): scroll horizontal di layar kecil, kolom prioritas (nama, status) tetap terlihat (sticky column jika perlu)
-- **Badge status berwarna konsisten**: Pending (Amber), Approved/Aktif (Teal/Green), Ditolak (Red), Selesai (Blue)
-- Form dengan validasi inline (real-time via jQuery + server-side Laravel Validation)
-- Komponen reusable sebagai Blade Components: `<x-card>`, `<x-status-badge>`, `<x-page-header>`, dll
+| Elemen | Font | Ukuran | Weight |
+|---|---|---|---|
+| H1 (judul halaman) | Poppins/Plus Jakarta Sans | 24px | 600 |
+| H2 (judul section) | Poppins/Plus Jakarta Sans | 20px | 600 |
+| H3 (judul card/subsection) | Poppins/Plus Jakarta Sans | 16px | 600 |
+| Body | Inter/Nunito Sans | 14px | 400 |
+| Body kecil (caption, keterangan tabel) | Inter/Nunito Sans | 12px | 400 |
+| Label form | Inter/Nunito Sans | 13px | 500 |
+| Line-height | — | 1.4–1.5x ukuran font | — |
 
-### 10.5 Framework CSS
-**Bootstrap 5** dipilih (bukan Tailwind) karena: kecepatan pengembangan untuk tim kecil, komponen siap pakai (modal, tab, accordion, badge), kompatibilitas mulus dengan jQuery/DataTables, dan familiaritas pola dashboard ala AdminLTE yang umum dipakai di sistem pemerintahan — memudahkan handover/maintenance jangka panjang oleh tim internal.
+Font di-load via Google Fonts CDN atau self-host untuk kecepatan; fallback ke `system-ui, sans-serif`.
+
+### 10.4 Spacing & Grid (kunci untuk tampilan padat-tapi-rapi)
+
+Pakai skala spacing konsisten kelipatan 4px — hindari jarak acak yang membuat layout terasa longgar tanpa alasan:
+
+| Token | Nilai | Kegunaan |
+|---|---|---|
+| `space-1` | 4px | Jarak antar elemen sangat rapat (icon+text) |
+| `space-2` | 8px | Padding dalam badge, gap antar form inline |
+| `space-3` | 12px | Padding dalam tombol, gap antar field form |
+| `space-4` | 16px | Padding standar card, gap antar card dalam grid |
+| `space-5` | 24px | Jarak antar section dalam satu halaman |
+| `space-6` | 32px | Jarak antar section besar / margin halaman |
+
+**Aturan praktis:** card padding `16px` (bukan 24-32px seperti dashboard SaaS pada umumnya) — cukup napas tanpa boros ruang. Container max-width `1320px` di desktop besar supaya tabel data tidak terlalu lebar dan sulit dipindai mata.
+
+### 10.5 Komponen — Spesifikasi Ringkas
+
+| Komponen | Spesifikasi |
+|---|---|
+| **Card** | Radius `8px`, border `1px solid Border`, shadow tipis `0 1px 3px rgba(0,0,0,.06)` (bukan shadow tebal — kesan formal, bukan playful), padding `16px` |
+| **Tombol Primary** | Background Primary, radius `6px`, padding `8px 16px`, font 14px weight 500, hover → Primary Hover |
+| **Tombol Secondary/Outline** | Border Primary, teks Primary, background transparan, hover → background Primary 10% opacity |
+| **Badge Status** | Radius penuh (`pill`), padding `2px 10px`, font 12px weight 600, warna solid sesuai status (lihat §10.6) |
+| **Tabel (DataTables)** | Row height ringkas `40-44px` (bukan 56px+ seperti Material Design) — supaya lebih banyak baris terlihat tanpa scroll berlebihan; header sticky, font 13-14px, hover row highlight abu tipis |
+| **Form Input** | Height `38px`, radius `6px`, border `1px solid Border`, focus → border Primary + ring tipis Primary 20% opacity |
+| **Modal** | Radius `10px`, max-width `600px` (form standar) / `900px` (form kompleks, mis. detail permohonan) |
+| **Sidebar** | Lebar `240px` desktop, collapsible ke `64px` (icon-only) atau off-canvas penuh di mobile |
+| **Icon** | Bootstrap Icons, ukuran default `18px` inline dengan teks, `24px` untuk aksi utama |
+
+### 10.6 Badge Status (konsisten di seluruh sistem)
+
+| Status | Warna Badge | Contoh Pemakaian |
+|---|---|---|
+| Menunggu/Pending | Amber `#F2A93B` | Permohonan diajukan, logbook menunggu review |
+| Terverifikasi/Disetujui/Aktif | Teal `#0F9B8E` | Permohonan terverifikasi, KKN aktif |
+| Selesai | Deep Blue `#1B3A6B` | KKN selesai, laporan lengkap |
+| Ditolak/Revisi | Red `#D64545` | Permohonan ditolak, logbook perlu revisi |
+| Draft/Nonaktif | Neutral 400 `#9CA3AF` | Akun belum diaktifkan, data belum lengkap |
+
+### 10.7 State Interaktif
+- **Hover:** perubahan warna background/border 1 tingkat lebih gelap, transisi `0.15s ease`
+- **Focus (aksesibilitas keyboard):** ring `2px` warna Primary 40% opacity di sekeliling elemen aktif
+- **Disabled:** opacity `50%`, cursor `not-allowed`, tanpa hover effect
+- **Loading:** skeleton screen abu-abu (bukan spinner penuh layar) untuk tabel/card yang sedang memuat data — kesan lebih cepat & modern
+- **Empty state:** ilustrasi/icon sederhana + teks singkat + CTA jika relevan (mis. "Belum ada permohonan" + tombol "Ajukan Permohonan")
+
+### 10.8 Layout & Responsivitas
+- **Mobile-first**, breakpoint Bootstrap 5 (`sm` 576px, `md` 768px, `lg` 992px, `xl` 1200px)
+- Sidebar collapsible desktop → hamburger/off-canvas mobile
+- Dashboard: grid card ringkas (2 kolom mobile, 4 kolom desktop) di atas, tabel/grafik detail di bawah — bukan tabel padat langsung di mobile
+- Tabel data: scroll horizontal di layar kecil, kolom prioritas (nama, status) sticky/tetap terlihat
+- Form: 1 kolom di mobile, 2 kolom di desktop untuk field pendek (grid Bootstrap), textarea/upload tetap full-width
+- Komponen reusable sebagai Blade Components: `<x-card>`, `<x-status-badge>`, `<x-page-header>`, `<x-empty-state>`, `<x-data-table>`
+
+### 10.9 Framework CSS
+**Bootstrap 5** (bukan Tailwind): kecepatan pengembangan tim kecil, komponen siap pakai (modal, tab, accordion, badge), kompatibel mulus dengan jQuery/DataTables, familiar untuk pola dashboard ala AdminLTE yang umum di sistem pemerintahan — memudahkan handover/maintenance jangka panjang oleh tim internal. Override variabel warna Bootstrap (`$primary`, `$secondary`, dst.) via SCSS agar konsisten dengan palet §10.2 tanpa menulis ulang komponen dari nol.
 
 ---
 
