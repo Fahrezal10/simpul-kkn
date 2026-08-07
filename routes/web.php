@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\PerguruanTinggiRegistrationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
+use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\NotificationController;
@@ -85,6 +86,14 @@ Route::middleware('auth')->group(function () {
             ->name('bapperida.permohonan.verify');
         Route::post('permohonan/{permohonan}/reject', [PermohonanVerificationController::class, 'reject'])
             ->name('bapperida.permohonan.reject');
+
+        /* ===== UC-06: Matching Engine (rekomendasi desa per kelompok) ===== */
+        Route::get('matching', [MatchingController::class, 'index'])->name('bapperida.matching.index');
+        Route::get('matching/data', [MatchingController::class, 'data'])->name('bapperida.matching.data');
+        Route::get('matching/{kelompokKkn}', [MatchingController::class, 'show'])->name('bapperida.matching.show');
+        Route::post('matching/{kelompokKkn}/run', [MatchingController::class, 'run'])->name('bapperida.matching.run');
+        Route::post('matching/{kelompokKkn}/override', [MatchingController::class, 'override'])->name('bapperida.matching.override');
+        Route::post('matching/{kelompokKkn}/batal-pilih', [MatchingController::class, 'batalPilih'])->name('bapperida.matching.batal-pilih');
     });
 
     /* ===== UC-02/03/04: Permohonan KKN oleh PT ===== */
