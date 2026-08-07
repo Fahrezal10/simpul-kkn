@@ -34,21 +34,22 @@ Ini menghapus semua data & membuat ulang dari nol (tabel + seeder). Gunakan bila
 
 ## 2. Daftar Akun Login (Sementara)
 
-Semua akun dibuat oleh seeder. Password ditulis sesuai seeder saat ini.
+Semua akun dibuat oleh seeder. **Semua password adalah `password`** (konvensi akun contoh).
 
 | Role | Email | Password | Keterangan |
 |---|---|---|---|
-| Bapperida (Admin) | `admin@bapperida-indramayu.go.id` | `ubah-password-ini` | ⚠️ Ganti password setelah login pertama di produksi |
+| Bapperida (Admin) | `admin@bapperida-indramayu.go.id` | `password` | Admin/superadmin — bisa login & verifikasi |
 | Perguruan Tinggi (disetujui) | `pt@uin.ac.id` | `password` | Universitas Indramayu — bisa login & ajukan permohonan |
 | Perguruan Tinggi (menunggu approval) | `pt-menunggu@uin.ac.id` | `password` | STIKes Sehat Jaya — untuk demo persetujuan akun |
 | Mahasiswa (kelompok 1) | `andi@uin.ac.id` | `password` | Andi Pratama (2024-01001) |
 | Mahasiswa (kelompok 2) | `dewi@uin.ac.id` | `password` | Dewi Lestari (2024-02001) |
 
-> ⚠️ **Karena pengguna juga sering lupa password admin:** jika lupa, reset dengan:
+> ⚠️ **Jika lupa/mau reset password akun mana pun:** reset dengan tinker:
 > ```bash
 > php artisan tinker
-> >>> App\Models\User::where('email','admin@bapperida-indramayu.go.id')->update(['password'=>bcrypt('password-baru')]);
+> >>> App\Models\User::where('email','admin@bapperida-indramayu.go.id')->update(['password'=>bcrypt('password')]);
 > ```
+> Ganti email sesuai akun yang dimaksud.
 
 ---
 

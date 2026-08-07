@@ -11,7 +11,8 @@ class AdminUserSeeder extends Seeder
 {
     /**
      * Membuat 1 akun awal Bapperida (superadmin) agar bisa langsung login
-     * setelah migrate & seed. GANTI PASSWORD INI SEGERA setelah login pertama.
+     * setelah migrate & seed. Password mengikuti konvensi akun contoh:
+     * "password" (semua akun seeder).
      */
     public function run(): void
     {
@@ -22,7 +23,7 @@ class AdminUserSeeder extends Seeder
             [
                 'role_id' => $roleId,
                 'nama' => 'Admin Bapperida',
-                'password' => Hash::make('ubah-password-ini'),
+                'password' => Hash::make('password'),
                 'status_aktif' => true,
                 'email_verified_at' => now(),
             ]
