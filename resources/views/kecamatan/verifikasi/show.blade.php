@@ -96,8 +96,13 @@
                 @else
                     @php $verif = $kelompok->verifikasiKecamatan->last(); @endphp
                     <div class="alert alert-{{ $kelompok->status === 'menunggu_persetujuan' ? 'success' : 'info' }} mb-0">
-                        <strong>Kelompok sudah diverifikasi.</strong> Status saat ini:
-                        <x-status-badge :status="$kelompok->status" />
+                        @if ($kelompok->status === 'menunggu_persetujuan')
+                            <strong>Kelompok sudah diverifikasi dan diteruskan ke Bapperida.</strong>
+                        @else
+                            <strong>Kelompok dikembalikan ke tahap matching.</strong>
+                            Desa ini ditandai tidak siap; Bapperida akan memilih desa alternatif.
+                        @endif
+                        Status saat ini: <x-status-badge :status="$kelompok->status" />
                         @if ($verif)
                             <div class="mt-2 small text-muted">
                                 Hasil: <x-status-badge :status="$verif->status" />

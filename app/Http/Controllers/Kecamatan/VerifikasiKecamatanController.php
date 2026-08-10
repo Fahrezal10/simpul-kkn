@@ -67,12 +67,16 @@ class VerifikasiKecamatanController extends Controller
 
         $rows = $kelompok->getCollection()->map(function ($k) {
             $dipilih = $k->riwayatMatching->first();
+            $desa = $k->desa;
+            $desaLabel = $desa
+                ? e($desa->nama_desa)
+                    .'<div class="small text-muted">'.e($desa->kecamatan->nama_kecamatan ?? '-').'</div>'
+                : '-';
             return [
                 'kode'   => '<strong>'.e($k->kode_kelompok).'</strong>',
                 'pt'     => e($k->permohonanKkn->perguruanTinggi->nama_pt ?? '-'),
                 'tema'   => e($k->tema),
-                'desa'   => e($k->desa->nama_desa ?? '-')
-                    .'<div class="small text-muted">'.$k->desa->kecamatan->nama_kecamatan ?? '-'.'</div>',
+                'desa'   => $desaLabel,
                 'skor'   => $dipilih ? number_format($dipilih->skor_total, 0) : '-',
                 'aksi'   => '<a href="'.route('kecamatan.verifikasi.show', $k).'" class="btn btn-sm btn-outline-primary"><i class="bi bi-clipboard-check me-1"></i> Verifikasi</a>',
             ];

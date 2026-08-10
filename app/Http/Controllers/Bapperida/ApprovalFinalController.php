@@ -46,13 +46,17 @@ class ApprovalFinalController extends Controller
         $rows = $kelompok->getCollection()->map(function ($k) {
             $verif = $k->verifikasiKecamatan->last();
             $dipilih = $k->riwayatMatching->first();
+            $desa = $k->desa;
+            $desaLabel = $desa
+                ? e($desa->nama_desa)
+                    .'<div class="small text-muted">'.e($desa->kecamatan->nama_kecamatan ?? '-').'</div>'
+                : '-';
 
             return [
                 'kode'  => '<strong>'.e($k->kode_kelompok).'</strong>',
                 'pt'    => e($k->permohonanKkn->perguruanTinggi->nama_pt ?? '-'),
                 'tema'  => e($k->tema),
-                'desa'  => e($k->desa->nama_desa ?? '-')
-                    .'<div class="small text-muted">'.$k->desa->kecamatan->nama_kecamatan ?? '-'.'</div>',
+                'desa'  => $desaLabel,
                 'verif' => $verif
                     ? view('components.status-badge', ['status' => $verif->status])->render()
                         .'<div class="small text-muted">'.e($verif->verifier->nama ?? '-').'</div>'
