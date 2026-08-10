@@ -58,6 +58,24 @@ class MatchingServiceTest extends TestCase
         }
     }
 
+    public function test_rank_tiebreak_mendahulukan_non_tumpang_tindih(): void
+    {
+        $hasil = (new \App\Services\MatchingService())->rank($this->kelompok());
+
+        // Kelompokkan per nilai skor_total, lalu pastikan pada tiap nilai
+        // yang sama, baris non-tumpang-tindih selalu muncul sebelum yang tumpang tindih.
+        $grouped = collect($hasil)->groupBy('skor_total');
+        foreach ($grouped as $baris) {
+            $flags = $baris->pluck('flag_tumpang_tindih')->all();
+            // 'tumpang tindih' tidak boleh mendahului 'non-tumpang tindih' pada skor sama.
+            $this->assertNotSame(
+                [true, false],
+                $flags,
+                'Tiebreak skor_total harus mendahulukan desa non-tumpang-tindih.'
+            );
+        }
+    }
+
     public function test_run_menyimpan_riwayat_dan_mengubah_status(): void
     {
         $k = $this->kelompok();

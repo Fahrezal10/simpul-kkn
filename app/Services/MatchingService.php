@@ -69,7 +69,7 @@ class MatchingService
         // Urutkan skor_total menurun; skor sama → tampilkan lebih dulu yang non-tumpang tindih.
         usort($hasil, function ($a, $b) {
             if ($a['skor_total'] === $b['skor_total']) {
-                return ($a['flag_tumpang_tindih'] <=> $b['flag_tumpang_tindih']) * -1;
+                return (int) $a['flag_tumpang_tindih'] - (int) $b['flag_tumpang_tindih'];
             }
             return $b['skor_total'] <=> $a['skor_total'];
         });
