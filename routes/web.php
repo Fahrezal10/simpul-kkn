@@ -8,8 +8,10 @@ use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
 use App\Http\Controllers\Desa\ProfilDesaController;
+use App\Http\Controllers\Dosen\LaporanVerifikasiController;
 use App\Http\Controllers\Dosen\LogbookApprovalController;
 use App\Http\Controllers\Kecamatan\VerifikasiKecamatanController;
+use App\Http\Controllers\Mahasiswa\LaporanAkhirController;
 use App\Http\Controllers\Mahasiswa\LogbookController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
@@ -168,6 +170,11 @@ Route::middleware('auth')->group(function () {
         Route::get('logbook', [LogbookController::class, 'index'])->name('mahasiswa.logbook.index');
         Route::get('logbook/data', [LogbookController::class, 'data'])->name('mahasiswa.logbook.data');
         Route::post('logbook', [LogbookController::class, 'store'])->name('mahasiswa.logbook.store');
+
+        /* UC-15: Laporan akhir */
+        Route::get('laporan-akhir', [LaporanAkhirController::class, 'index'])->name('mahasiswa.laporan-akhir.index');
+        Route::get('laporan-akhir/data', [LaporanAkhirController::class, 'data'])->name('mahasiswa.laporan-akhir.data');
+        Route::post('laporan-akhir', [LaporanAkhirController::class, 'store'])->name('mahasiswa.laporan-akhir.store');
     });
 
     /* ===== UC-16: Approval logbook oleh DPL ===== */
@@ -177,6 +184,13 @@ Route::middleware('auth')->group(function () {
         Route::get('logbook/{logbook}', [LogbookApprovalController::class, 'show'])->name('dosen.logbook.show');
         Route::post('logbook/{logbook}/approve', [LogbookApprovalController::class, 'approve'])->name('dosen.logbook.approve');
         Route::post('logbook/{logbook}/revisi', [LogbookApprovalController::class, 'revisi'])->name('dosen.logbook.revisi');
+
+        /* UC-15 (verifikasi): laporan akhir */
+        Route::get('laporan-akhir', [LaporanVerifikasiController::class, 'index'])->name('dosen.laporan-akhir.index');
+        Route::get('laporan-akhir/data', [LaporanVerifikasiController::class, 'data'])->name('dosen.laporan-akhir.data');
+        Route::get('laporan-akhir/{laporan}', [LaporanVerifikasiController::class, 'show'])->name('dosen.laporan-akhir.show');
+        Route::post('laporan-akhir/{laporan}/approve', [LaporanVerifikasiController::class, 'approve'])->name('dosen.laporan-akhir.approve');
+        Route::post('laporan-akhir/{laporan}/revisi', [LaporanVerifikasiController::class, 'revisi'])->name('dosen.laporan-akhir.revisi');
     });
 
     // Dashboard per-role → lewat DashboardController agar statistik & variabel

@@ -14,10 +14,16 @@ class LaporanAkhir extends Model
         'file_luaran',
         'uploaded_by',
         'uploaded_at',
+        'status',
+        'catatan_verifikasi',
+        'verified_by',
+        'verified_at',
     ];
 
     protected $casts = [
         'uploaded_at' => 'datetime',
+        'status'      => 'string',
+        'verified_at' => 'datetime',
     ];
 
     public function kelompokKkn()
@@ -28,5 +34,10 @@ class LaporanAkhir extends Model
     public function uploader()
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }

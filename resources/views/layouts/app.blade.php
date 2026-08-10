@@ -122,6 +122,12 @@
                             <span>Logbook Harian</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('mahasiswa.laporan-akhir.*') ? 'active' : '' }}" href="{{ route('mahasiswa.laporan-akhir.index') }}">
+                            <i class="bi bi-file-earmark-richtext"></i>
+                            <span>Laporan Akhir</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'dosen' || $role === 'superadmin')
@@ -130,6 +136,12 @@
                         <a class="nav-link {{ request()->routeIs('dosen.logbook.*') ? 'active' : '' }}" href="{{ route('dosen.logbook.index') }}">
                             <i class="bi bi-clipboard-check"></i>
                             <span>Approval Logbook</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dosen.laporan-akhir.*') ? 'active' : '' }}" href="{{ route('dosen.laporan-akhir.index') }}">
+                            <i class="bi bi-file-earmark-check"></i>
+                            <span>Verifikasi Laporan</span>
                         </a>
                     </li>
                 @endif
