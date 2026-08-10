@@ -101,6 +101,18 @@
                             <span>Master Data</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.penutupan-periode.*') ? 'active' : '' }}" href="{{ route('bapperida.penutupan-periode.index') }}">
+                            <i class="bi bi-flag-fill"></i>
+                            <span>Penutupan Periode</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('activity-log.*') ? 'active' : '' }}" href="{{ route('activity-log.index') }}">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Aktivitas Sistem</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'kecamatan' || $role === 'superadmin')

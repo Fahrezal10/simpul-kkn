@@ -1,9 +1,7 @@
-# 08 — Panduan Penggunaan (Sementara)
+# 08 — Panduan Penggunaan
 ## SIMPUL-KKN
 
-> ⚠️ **Status: DRAFT / cheat sheet internal pengembang.** Diperbarui seiring perkembangan fitur. Bukan manual resmi pengguna akhir (itu menyusul di fase finalisasi).
->
-> Tujuan: pengingat cepat — akun login, cara menjalankan, dan checklist hal yang perlu dicek saat menguji.
+> **Status: Panduan penggunaan fungsional** (Fase 1–4). Diperbarui seiring perkembangan fitur. Akun & alur di bawah adalah contoh demo yang dibuat seeder (`php artisan migrate:fresh --seed`).
 
 Dokumen sebelumnya: `00-design-system.md` s.d. `07-load-testing.md`
 
@@ -43,6 +41,12 @@ Semua akun dibuat oleh seeder. **Semua password adalah `password`** (konvensi ak
 | Perguruan Tinggi (menunggu approval) | `pt-menunggu@uin.ac.id` | `password` | STIKes Sehat Jaya — untuk demo persetujuan akun |
 | Mahasiswa (kelompok 1) | `andi@uin.ac.id` | `password` | Andi Pratama (2024-01001) |
 | Mahasiswa (kelompok 2) | `dewi@uin.ac.id` | `password` | Dewi Lestari (2024-02001) |
+| DPL (kelompok 1) | `siti@uin.ac.id` | `password` | DPL kelompok 01 — approve logbook/laporan |
+| DPL (kelompok 2) | `ahmad@uin.ac.id` | `password` | DPL kelompok 02 |
+| Operator Kecamatan Haurgeulis | `kec@haurgeulis.go.id` | `password` | Verifikasi kesiapan desa (UC-11) |
+| Operator Kecamatan Jatibarang | `kec@jatibarang.go.id` | `password` | Verifikasi kesiapan desa (UC-11) |
+| Operator Desa Wanakaya | `desa@wanakaya.go.id` | `password` | Profil desa, evaluasi kelompok (UC-13) |
+| Operator OPD | `opd@bappeda.go.id` | `password` | Input isu strategis (UC-10) |
 
 > ⚠️ **Jika lupa/mau reset password akun mana pun:** reset dengan tinker:
 > ```bash
@@ -89,11 +93,46 @@ Alur inti pengajuan → verifikasi. Jalankan berurutan:
 - [ ] Di menu PT **Permohonan KKN**, status permohonan tampil sebagai badge real-time
 - [ ] Halaman notifikasi penuh: menu user → **Notifikasi**
 
-> **Dashboard mahasiswa:** akun `andi@uin.ac.id` / `dewi@uin.ac.id` sudah bisa login, dashboard + bell notifikasi berfungsi (dropdown kosong sampai ada pemicu notifikasi mahasiswa — logbook, dll. masuk **Fase 3**).
+> **Dashboard mahasiswa:** akun `andi@uin.ac.id` / `dewi@uin.ac.id` sudah bisa login, dashboard + bell notifikasi berfungsi (dropdown kosong sampai ada pemicu notifikasi mahasiswa).
 
 ---
 
-## 4. Checklist Cepat (Hal yang Sering Diperiksa Saat Lupa)
+## 4. Alur Uji Coba Fase 4 (Checklist)
+
+### 4.1 Dashboard GIS — Peta Sebaran (UC-09)
+- [ ] Login Bapperida → menu **Peta (GIS)** (atau `/gis`)
+- [ ] Peta Leaflet tampil dengan marker desa (dari `desa.latitude/longitude`)
+- [ ] Klik marker → popup info desa: nama, kecamatan, jumlah kelompok KKN aktif
+- [ ] Data peta dari endpoint `/gis/data` (GeoJSON `FeatureCollection`)
+
+### 4.2 Dashboard Monitoring & Evaluasi (UC-09)
+- [ ] Bapperida → **Monitoring & Evaluasi** (atau `/bapperida/monitoring`)
+- [ ] Statistik: jumlah PT, permohonan, mahasiswa, kelompok aktif, desa aktif
+- [ ] Distribusi kelompok per status + kelompok aktif per PT + rata-rata evaluasi desa & DPL
+
+### 4.3 Master Data Generik (UC-08)
+- [ ] Bapperida → **Master Data** → pilih jenis **Kecamatan** / **Perangkat Daerah**
+- [ ] **Tambah** data baru → muncul di tabel
+- [ ] **Edit** via ikon pensil → modal terisi nilai lama → simpan
+- [ ] **Hapus**: kecamatan yang punya desa ditolak sistem (peringatan), kecamatan kosong berhasil dihapus
+- [ ] Kode wilayah kecamatan harus unik (validasi)
+
+### 4.4 Penutupan Periode KKN
+- [ ] Login Bapperida → **Penutupan Periode**
+- [ ] Daftar kelompok **Aktif** tampil (kode, PT, tema, desa lokasi)
+- [ ] **Tutup Periode** → konfirmasi → semua kelompok aktif jadi **Selesai**
+- [ ] Login mahasiswa `andi@uin.ac.id` → coba isi logbook → **ditolak** (kelompok sudah selesai)
+- [ ] DPL `siti@uin.ac.id` menerima notifikasi "periode KKN ditutup"
+
+### 4.5 Aktivitas Sistem (Audit Trail)
+- [ ] Bapperida → **Aktivitas Sistem** (atau `/activity-log`)
+- [ ] Daftar jejak aksi tampil: waktu, pengguna, role, aksi, deskripsi, IP
+- [ ] Cari / filter aksi (mis. `tutup_periode`, `setujui_pelaksanaan`)
+- [ ] Aksi terbaru tampil paling atas
+
+---
+
+## 5. Checklist Cepat (Hal yang Sering Diperiksa Saat Lupa)
 
 | Hal | Di mana | Catatan |
 |---|---|---|
@@ -108,11 +147,13 @@ Alur inti pengajuan → verifikasi. Jalankan berurutan:
 
 ---
 
-## 5. Catatan Teknis Ringkas
+## 6. Catatan Teknis Ringkas
 
 - **Laravel 12 + MySQL** (XAMPP). CSS/JS manual di `public/css/app.css` & `public/js/app.js` (bukan build Vite).
 - **Notifikasi in-app** disimpan ke tabel `notifications` **sinkron** (tanpa queue worker) — sesuai desain fase awal.
 - **Pagination tabel list** memakai **jQuery/AJAX server-side** (endpoint `.../data`).
+- **Cache dashboard monitoring**: agregasi di-`Cache::remember` 120 detik; di-invalidasi otomatis setelah approval, evaluasi, dan penutupan periode.
+- **Activity log**: seluruh aksi penting (tambah/ubah/hapus, matching, verifikasi, persetujuan, tutup periode) ditulis ke `activity_log` dan tampil di menu **Aktivitas Sistem**.
 - Konvensi commit: prefix `feat:` / `docs:` / `style:` / `chore:`.
 
 ---
