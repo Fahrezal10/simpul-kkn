@@ -65,6 +65,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.matching.*') ? 'active' : '' }}" href="{{ route('bapperida.matching.index') }}">
+                            <i class="bi bi-magic"></i>
+                            <span>Matching KKN</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('bapperida.desa.*') ? 'active' : '' }}" href="{{ route('bapperida.desa.index') }}">
                             <i class="bi bi-geo-alt"></i>
                             <span>Master Data Desa</span>
