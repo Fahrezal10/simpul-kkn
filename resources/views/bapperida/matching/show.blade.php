@@ -84,7 +84,7 @@
                     </thead>
                     <tbody>
                         @foreach ($kelompok->riwayatMatching as $i => $r)
-                            <tr @if($r->status === 'dipilih') class="table-success" @endif>
+                            <tr @if($r->status === 'dipilih') class="table-success" @elseif($r->status === 'ditolak') class="table-danger" @endif>
                                 <td>{{ $i + 1 }}</td>
                                 <td>
                                     <strong>{{ $r->desa->nama_desa }}</strong>
@@ -96,7 +96,9 @@
                                 <td class="text-center">{{ number_format($r->skor_kebutuhan, 0) }}</td>
                                 <td class="text-center fw-bold">{{ number_format($r->skor_total, 0) }}</td>
                                 <td class="text-center">
-                                    @if($r->flag_tumpang_tindih)
+                                    @if($r->status === 'ditolak')
+                                        <span class="badge text-bg-danger" title="Desa pernah ditolak/tidak siap — tidak dijadikan kandidat">Ditolak</span>
+                                    @elseif($r->flag_tumpang_tindih)
                                         <span class="badge text-bg-warning" title="Tema serupa sudah diterapkan di desa ini dari kelompok lain">Tumpang tindih</span>
                                     @else
                                         <span class="text-muted">-</span>
@@ -108,6 +110,8 @@
                                             @csrf
                                             <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg me-1"></i> Batal pilih</button>
                                         </form>
+                                    @elseif ($r->status === 'ditolak')
+                                        <span class="text-muted small">Tidak dapat dipilih</span>
                                     @elseif ($kelompok->status === 'menunggu_verifikasi_kecamatan' || $kelompok->status === 'menunggu_persetujuan')
                                         <form method="POST" action="{{ route('bapperida.matching.override', $kelompok) }}" class="d-inline">
                                             @csrf

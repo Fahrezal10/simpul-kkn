@@ -48,12 +48,26 @@ class MatchingService
         $bidang = (string) $kelompok->bidang_keilmuan;
         $hasil = [];
 
-        // Kandidat desa yang layak: sudah punya data kebutuhan/potensi/isu
-        // (modul-desa belum ada UI, diisi seeder demo terlebih dahulu).
+        // Kandidat desa yang layak: sudah punya data kebutuhan/potensi/isu.
         $desas = Desa::with(['kebutuhan', 'potensi', 'permasalahan'])->get();
+
+        // Desa yang pernah ditolak (oleh kecamatan / Bapperida) untuk kelompok
+        // ini — tidak boleh muncul lagi sebagai kandidat utama.
+        $ditolak = RiwayatMatching::where('kelompok_kkn_id', $kelompok->id)
+            ->where('status', 'ditolak')
+            ->pluck('desa_id')
+            ->flip();
 
         foreach ($desas as $desa) {
             $skor = $this->scoreDesa($kelompok, $desa, $tema, $bidang);
+
+            // Jika desa pernah ditolak, turunkan skor ke nilai sangat rendah
+            // (di bawah semua kandidat) tetapi tetap tampil sebagai info.
+            $ditolakSebelumnya = $ditolak->has($desa->id);
+            if ($ditolakSebelumnya) {
+                $skor['total'] = 0.0;
+            }
+
             $hasil[] = [
                 'desa_id'            => $desa->id,
                 'skor_tema'          => round($skor['tema'], 2),
@@ -62,6 +76,7 @@ class MatchingService
                 'skor_kebutuhan'     => round($skor['kebutuhan'], 2),
                 'skor_total'         => round($skor['total'], 2),
                 'flag_tumpang_tindih'=> $this->isTumpangTindih($kelompok, $desa),
+                'ditolak_sebelumnya' => $ditolakSebelumnya,
                 'alasan'             => $skor['alasan'],
             ];
         }
@@ -94,10 +109,29 @@ class MatchingService
         $byUserId = $byUserId ?: null;
 
         DB::transaction(function () use ($kelompok, $hasil, $byUserId) {
-            // Refresh riwayat: buang hasil lama, tulis ulang perhitungan terbaru.
-            $kelompok->riwayatMatching()->delete();
+            // Refresh riwayat: buang hasil lama (kandidat), PERTAHANKAN jejak
+            // 'ditolak' agar desa yang pernah ditolak tidak muncul lagi di ranking.
+            $kelompok->riwayatMatching()->where('status', '!=', 'ditolak')->delete();
 
             foreach ($hasil as $h) {
+                // Desa yang pernah ditolak: perbarui baris ditolak yang dipertahankan
+                // (skor total 0) tanpa membuat baris kandidat baru.
+                if ($h['ditolak_sebelumnya']) {
+                    $kelompok->riwayatMatching()
+                        ->where('desa_id', $h['desa_id'])
+                        ->where('status', 'ditolak')
+                        ->update([
+                            'skor_tema'           => $h['skor_tema'],
+                            'skor_bidang'         => $h['skor_bidang'],
+                            'skor_prioritas'      => $h['skor_prioritas'],
+                            'skor_kebutuhan'      => $h['skor_kebutuhan'],
+                            'skor_total'          => $h['skor_total'],
+                            'flag_tumpang_tindih' => $h['flag_tumpang_tindih'],
+                            'dijalankan_oleh'     => $byUserId,
+                        ]);
+                    continue;
+                }
+
                 RiwayatMatching::create([
                     'kelompok_kkn_id'     => $kelompok->id,
                     'desa_id'             => $h['desa_id'],

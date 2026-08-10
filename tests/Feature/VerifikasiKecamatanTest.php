@@ -164,4 +164,42 @@ class VerifikasiKecamatanTest extends TestCase
             ->get(route('kecamatan.verifikasi.index'))
             ->assertForbidden();
     }
+
+    #[Test]
+    public function desa_yang_ditolak_tidak_muncul_lagi_sebagai_kandidat(): void
+    {
+        // Bawa ke menunggu_persetujuan (desa Wanakaya dipilih, kecamatan verifikasi siap).
+        $this->siapkanMenungguVerifikasi();
+        $this->actingAs($this->kecHaurgeulis)
+            ->post(route('kecamatan.verifikasi.store', $this->kelompok), ['status' => 'siap'])
+            ->assertRedirect();
+
+        // Bapperida tolak lokasi → status ditolak pada riwayat.
+        $this->actingAs($this->bapperida)
+            ->post(route('bapperida.approval-final.tolak', $this->kelompok))
+            ->assertRedirect();
+
+        $desaTolak = Desa::where('nama_desa', 'Wanakaya')->firstOrFail();
+        $this->assertDatabaseHas('riwayat_matching', [
+            'kelompok_kkn_id' => $this->kelompok->id,
+            'desa_id'         => $desaTolak->id,
+            'status'          => 'ditolak',
+        ]);
+
+        // Jalankan matching ulang — desa ditolak tidak boleh jadi kandidat,
+        // dan jejak ditolak tetap dipertahankan.
+        $this->kelompok->update(['status' => 'menunggu_matching']);
+        (new MatchingService())->run($this->kelompok, $this->bapperida->id);
+
+        $this->assertDatabaseMissing('riwayat_matching', [
+            'kelompok_kkn_id' => $this->kelompok->id,
+            'desa_id'         => $desaTolak->id,
+            'status'          => 'kandidat',
+        ]);
+        $this->assertDatabaseHas('riwayat_matching', [
+            'kelompok_kkn_id' => $this->kelompok->id,
+            'desa_id'         => $desaTolak->id,
+            'status'          => 'ditolak',
+        ]);
+    }
 }

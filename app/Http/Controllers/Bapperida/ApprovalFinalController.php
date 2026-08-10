@@ -124,8 +124,12 @@ class ApprovalFinalController extends Controller
             return back()->with('error', 'Kelompok ini tidak dalam status menunggu persetujuan.');
         }
 
-        // Batalkan pilihan desa (kembali ke kandidat) & reset ke menunggu_matching.
-        $kelompokKkn->riwayatMatching()->update(['status' => 'kandidat']);
+        // Batalkan pilihan desa: tandai desa terpilih sebagai 'ditolak' agar
+        // tidak muncul lagi di ranking re-matching (enum riwayat_matching.status
+        // mendukung 'ditolak').
+        $kelompokKkn->riwayatMatching()
+            ->where('status', 'dipilih')
+            ->update(['status' => 'ditolak']);
         $kelompokKkn->update(['status' => 'menunggu_matching', 'desa_id' => null]);
 
         ActivityLog::create([

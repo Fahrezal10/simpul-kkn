@@ -137,11 +137,16 @@ class VerifikasiKecamatanController extends Controller
 
         // Status kelompok lanjut ke Bapperida (menunggu persetujuan akhir) atau
         // kembali ke matching (desa tidak siap → Bapperida pilih desa lain).
-        $kelompokKkn->update([
-            'status' => $validated['status'] === 'siap'
-                ? 'menunggu_persetujuan'
-                : 'menunggu_matching',
-        ]);
+        $isSiap = $validated['status'] === 'siap';
+        if (! $isSiap) {
+            // Tandai desa sebagai 'ditolak' agar tidak muncul lagi di re-matching.
+            $kelompokKkn->riwayatMatching()
+                ->where('status', 'dipilih')
+                ->update(['status' => 'ditolak']);
+            $kelompokKkn->update(['status' => 'menunggu_matching', 'desa_id' => null]);
+        } else {
+            $kelompokKkn->update(['status' => 'menunggu_persetujuan']);
+        }
 
         $label = $validated['status'] === 'siap' ? 'siap' : 'tidak siap';
 

@@ -138,9 +138,14 @@ class MatchingController extends Controller
         if (! $dipilih) {
             return back()->with('error', 'Desa tersebut tidak ada dalam hasil matching kelompok ini.');
         }
+        if ($dipilih->status === 'ditolak') {
+            return back()->with('error', 'Desa ini pernah ditolak/tidak siap dan tidak dapat dipilih.');
+        }
 
-        // Satu 'dipilih', sisanya kembali 'kandidat'.
-        $kelompokKkn->riwayatMatching()->update(['status' => 'kandidat']);
+        // Satu 'dipilih', sisanya kembali 'kandidat' (jejak 'ditolak' dipertahankan).
+        $kelompokKkn->riwayatMatching()
+            ->where('status', '!=', 'ditolak')
+            ->update(['status' => 'kandidat']);
         $dipilih->update(['status' => 'dipilih']);
         $kelompokKkn->update(['desa_id' => $validated['desa_id']]);
 
@@ -152,7 +157,10 @@ class MatchingController extends Controller
      */
     public function batalPilih(KelompokKkn $kelompokKkn): RedirectResponse
     {
-        $kelompokKkn->riwayatMatching()->update(['status' => 'kandidat']);
+        // Kembalikan ke kandidat; jejak 'ditolak' tetap dipertahankan.
+        $kelompokKkn->riwayatMatching()
+            ->where('status', '!=', 'ditolak')
+            ->update(['status' => 'kandidat']);
         $kelompokKkn->update(['desa_id' => null]);
 
         return back()->with('success', "Pilihan lokasi kelompok {$kelompokKkn->kode_kelompok} dibatalkan.");
