@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notification;
  * Dikirim ke operator PT & DPL saat Bapperida menetapkan status akhir:
  *  - 'aktif'   → KKN disetujui berjalan, mahasiswa bisa mulai logbook.
  *  - 'menunggu_matching' → lokasi ditolak, kembali ke matching.
+ *  - 'selesai' → periode KKN ditutup, pelaksanaan kelompok selesai.
  *
  * Sinkron (tanpa ShouldQueue) — konsisten dengan PermohonanStatusNotification.
  */
@@ -37,10 +38,14 @@ class KelompokStatusNotification extends Notification
     {
         $desa = $this->kelompok->desa?->nama_desa;
 
+        $message = match ($this->statusLabel) {
+            'aktif'   => "Pelaksanaan KKN kelompok {$this->kelompok->kode_kelompok} DISETUJUI".($desa ? " di desa {$desa}" : '').'.',
+            'selesai' => "Periode KKN ditutup: kelompok {$this->kelompok->kode_kelompok} telah selesai melaksanakan KKN.",
+            default   => "Lokasi kelompok {$this->kelompok->kode_kelompok} ditolak; kembali ke tahap matching.",
+        };
+
         return [
-            'message' => $this->statusLabel === 'aktif'
-                ? "Pelaksanaan KKN kelompok {$this->kelompok->kode_kelompok} DISETUJUI".($desa ? " di desa {$desa}" : '').'.'
-                : "Lokasi kelompok {$this->kelompok->kode_kelompok} ditolak; kembali ke tahap matching.",
+            'message' => $message,
             'status'  => $this->statusLabel,
             'type'    => 'kelompok_status',
             'url'     => route('dashboard'),

@@ -10,6 +10,7 @@ use App\Models\KelompokKkn;
 use App\Models\Mahasiswa;
 use App\Models\PerguruanTinggi;
 use App\Models\PermohonanKkn;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -19,25 +20,43 @@ use Illuminate\View\View;
  * Agregasi menyeluruh untuk Bapperida: jumlah mahasiswa, kelompok aktif,
  * desa aktif, statistik evaluasi (rata-rata skor desa & DPL), dan distribusi
  * kelompok per status.
+ *
+ * Hasil agregasi di-cache 2 menit (load-testing §5: target < 3 detik untuk
+ * akses 10-15 user bersamaan). Cache di-invalidasi setiap kali terjadi
+ * perubahan data yang memengaruhi agregat (lihat BapperidaService::flushMonitoringCache
+ * yang dipanggil setelah approval, evaluasi, dan penutupan periode).
  */
 class MonitoringController extends Controller
 {
+    private const CACHE_KEY = 'monitoring_stats';
+
     public function index(): View
     {
-        $stats = [
-            'pt'          => PerguruanTinggi::count(),
-            'permohonan'  => PermohonanKkn::count(),
-            'desa'        => Desa::count(),
-            'desa_aktif'  => Desa::whereHas('kelompokKkn', fn ($q) => $q->where('status', 'aktif'))->count(),
-            'mahasiswa'   => Mahasiswa::count(),
-            'kelompok'    => $this->kelompokPerStatus(),
-            'kelompok_aktif' => KelompokKkn::where('status', 'aktif')->count(),
-            'evaluasi_desa' => $this->agregasiEvaluasiDesa(),
-            'evaluasi_dpl'  => $this->agregasiEvaluasiDpl(),
-            'kelompok_per_pt' => $this->kelompokPerPt(),
-        ];
+        $stats = Cache::remember(self::CACHE_KEY, 120, function () {
+            return [
+                'pt'          => PerguruanTinggi::count(),
+                'permohonan'  => PermohonanKkn::count(),
+                'desa'        => Desa::count(),
+                'desa_aktif'  => Desa::whereHas('kelompokKkn', fn ($q) => $q->where('status', 'aktif'))->count(),
+                'mahasiswa'   => Mahasiswa::count(),
+                'kelompok'    => $this->kelompokPerStatus(),
+                'kelompok_aktif' => KelompokKkn::where('status', 'aktif')->count(),
+                'evaluasi_desa' => $this->agregasiEvaluasiDesa(),
+                'evaluasi_dpl'  => $this->agregasiEvaluasiDpl(),
+                'kelompok_per_pt' => $this->kelompokPerPt(),
+            ];
+        });
 
         return view('bapperida.monitoring.index', compact('stats'));
+    }
+
+    /**
+     * Buang cache agregasi monitoring. Dipanggil dari BapperidaService setelah
+     * aksi yang mengubah data lintas agregat (approval, evaluasi, penutupan periode).
+     */
+    public static function flushCache(): void
+    {
+        Cache::forget(self::CACHE_KEY);
     }
 
     private function kelompokPerStatus(): array

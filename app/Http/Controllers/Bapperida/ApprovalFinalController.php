@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\KelompokKkn;
 use App\Notifications\KelompokStatusNotification;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Bapperida\MonitoringController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -105,6 +106,9 @@ class ApprovalFinalController extends Controller
         }
 
         $kelompokKkn->update(['status' => 'aktif']);
+
+        // Jumlah kelompok aktif berubah → buang cache agregasi monitoring.
+        MonitoringController::flushCache();
 
         ActivityLog::create([
             'user_id'    => Auth::id(),

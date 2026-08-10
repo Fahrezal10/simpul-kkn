@@ -8,12 +8,14 @@ use App\Http\Controllers\Bapperida\MonitoringController;
 use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
+use App\Http\Controllers\Bapperida\PenutupanPeriodeController;
 use App\Http\Controllers\Desa\EvaluasiDesaController;
 use App\Http\Controllers\Desa\ProfilDesaController;
 use App\Http\Controllers\Dosen\EvaluasiDplController;
 use App\Http\Controllers\Dosen\LaporanVerifikasiController;
 use App\Http\Controllers\Dosen\LogbookApprovalController;
 use App\Http\Controllers\Kecamatan\VerifikasiKecamatanController;
+use App\Http\Controllers\Shared\ActivityLogController;
 use App\Http\Controllers\Mahasiswa\LaporanAkhirController;
 use App\Http\Controllers\Mahasiswa\LogbookController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
@@ -70,6 +72,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::post('/notifications/ajax/{id}/read', [NotificationController::class, 'markAsReadAjax'])->name('notifications.mark-as-read-ajax');
+
+    /* SYS-02: Aktivitas sistem (audit trail) — khusus Bapperida */
+    Route::get('/activity-log', [ActivityLogController::class, 'index'])
+        ->middleware('role:bapperida,superadmin')->name('activity-log.index');
+    Route::get('/activity-log/data', [ActivityLogController::class, 'data'])
+        ->middleware('role:bapperida,superadmin')->name('activity-log.data');
 
     /* ===== UC-08: Kelola Master Data (CRUD generik oleh Bapperida) ===== */
     Route::prefix('master-data')->middleware('role:bapperida,superadmin')->group(function () {
@@ -133,6 +141,10 @@ Route::middleware('auth')->group(function () {
 
         /* ===== UC-09: Dashboard Monitoring & Evaluasi ===== */
         Route::get('monitoring', [MonitoringController::class, 'index'])->name('bapperida.monitoring.index');
+
+        /* ===== Penutupan periode: kelompok aktif → selesai ===== */
+        Route::get('penutupan-periode', [PenutupanPeriodeController::class, 'index'])->name('bapperida.penutupan-periode.index');
+        Route::post('penutupan-periode', [PenutupanPeriodeController::class, 'store'])->name('bapperida.penutupan-periode.store');
 
         /* ===== UC-07: Persetujuan akhir pelaksanaan KKN ===== */
         Route::get('approval-final', [ApprovalFinalController::class, 'index'])->name('bapperida.approval-final.index');

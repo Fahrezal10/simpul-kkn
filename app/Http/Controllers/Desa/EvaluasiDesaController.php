@@ -93,6 +93,9 @@ class EvaluasiDesaController extends Controller
             $validated
         );
 
+        // Agregasi evaluasi di dashboard monitoring berubah → buang cache.
+        \App\Http\Controllers\Bapperida\MonitoringController::flushCache();
+
         return back()->with('success', 'Evaluasi desa untuk kelompok '.$kelompokKkn->kode_kelompok.' disimpan.');
     }
 }
