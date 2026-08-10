@@ -71,14 +71,35 @@ class LaporanAkhirController extends Controller
             ? $request->file('file_luaran')->store('laporan-akhir', 'public')
             : null;
 
-        LaporanAkhir::create([
-            'kelompok_kkn_id' => $mahasiswa->kelompok_kkn_id,
-            'file_laporan'    => $laporanPath,
-            'file_luaran'     => $luaranPath,
-            'uploaded_by'     => Auth::id(),
-            'uploaded_at'     => now(),
-            'status'          => 'menunggu',
-        ]);
+        // Laporan revisi boleh di-upload ulang (update ke menunggu);
+        // yang sudah menunggu/disetujui ditolak.
+        $existing = LaporanAkhir::where('kelompok_kkn_id', $mahasiswa->kelompok_kkn_id)->latest()->first();
+
+        if ($existing && $existing->status !== 'revisi') {
+            return back()->with('error', 'Laporan akhir untuk kelompok ini sudah ada dan tidak dalam status revisi.');
+        }
+
+        if ($existing) {
+            $existing->update([
+                'file_laporan'       => $laporanPath,
+                'file_luaran'        => $luaranPath,
+                'uploaded_by'        => Auth::id(),
+                'uploaded_at'        => now(),
+                'status'             => 'menunggu',
+                'catatan_verifikasi' => null,
+                'verified_by'        => null,
+                'verified_at'        => null,
+            ]);
+        } else {
+            LaporanAkhir::create([
+                'kelompok_kkn_id' => $mahasiswa->kelompok_kkn_id,
+                'file_laporan'    => $laporanPath,
+                'file_luaran'     => $luaranPath,
+                'uploaded_by'     => Auth::id(),
+                'uploaded_at'     => now(),
+                'status'          => 'menunggu',
+            ]);
+        }
 
         return back()->with('success', 'Laporan akhir berhasil di-upload dan menunggu verifikasi.');
     }

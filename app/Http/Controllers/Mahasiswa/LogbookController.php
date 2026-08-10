@@ -86,24 +86,38 @@ class LogbookController extends Controller
         // Pakai whereDate agar cocok lintas driver (MySQL simpan datetime).
         $sudahAda = Logbook::where('mahasiswa_id', $mahasiswa->id)
             ->whereDate('tanggal', $validated['tanggal'])
-            ->exists();
-        if ($sudahAda) {
-            return back()->with('error', 'Logbook untuk tanggal tersebut sudah diisi.');
-        }
+            ->first();
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('logbook', 'public');
         }
 
-        Logbook::create([
-            'kelompok_kkn_id'    => $mahasiswa->kelompok_kkn_id,
-            'mahasiswa_id'       => $mahasiswa->id,
-            'tanggal'            => $validated['tanggal'],
-            'deskripsi_kegiatan' => $validated['deskripsi_kegiatan'],
-            'foto'               => $fotoPath,
-            'status'             => 'menunggu',
-        ]);
+        // Logbook revisi (status 'revisi') boleh di-submit ulang — perbarui baris
+        // yang ada kembali ke 'menunggu'. Logbook lain (menunggu/disetujui) ditolak.
+        if ($sudahAda && $sudahAda->status !== 'revisi') {
+            return back()->with('error', 'Logbook untuk tanggal tersebut sudah diisi.');
+        }
+
+        if ($sudahAda && $sudahAda->status === 'revisi') {
+            $sudahAda->update([
+                'deskripsi_kegiatan' => $validated['deskripsi_kegiatan'],
+                'foto'               => $fotoPath ?: $sudahAda->foto,
+                'status'             => 'menunggu',
+                'catatan_dpl'        => null,
+                'approved_by'        => null,
+                'approved_at'        => null,
+            ]);
+        } else {
+            Logbook::create([
+                'kelompok_kkn_id'    => $mahasiswa->kelompok_kkn_id,
+                'mahasiswa_id'       => $mahasiswa->id,
+                'tanggal'            => $validated['tanggal'],
+                'deskripsi_kegiatan' => $validated['deskripsi_kegiatan'],
+                'foto'               => $fotoPath,
+                'status'             => 'menunggu',
+            ]);
+        }
 
         return back()->with('success', 'Logbook harian berhasil disimpan dan menunggu approval DPL.');
     }

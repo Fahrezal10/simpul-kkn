@@ -102,6 +102,31 @@ class LaporanAkhirTest extends TestCase
         $this->assertSame('Laporan perlu dilengkapi lampiran.', $laporan->fresh()->catatan_verifikasi);
     }
 
+    #[Test]
+    public function laporan_revisi_dapat_diupload_ulang(): void
+    {
+        $this->kelompok->update(['status' => 'aktif']);
+        $this->uploadLaporan();
+
+        $laporan = LaporanAkhir::firstOrFail();
+
+        // DPL minta revisi.
+        $this->actingAs($this->dpl)
+            ->post(route('dosen.laporan-akhir.revisi', $laporan), ['catatan_verifikasi' => 'Lengkapi.'])
+            ->assertRedirect();
+        $this->assertSame('revisi', $laporan->fresh()->status);
+
+        // Mahasiswa upload ulang → update ke menunggu (bukan baris baru).
+        $this->actingAs($this->mahasiswa)
+            ->post(route('mahasiswa.laporan-akhir.store'), [
+                'file_laporan' => UploadedFile::fake()->create('laporan-v2.pdf', 100, 'application/pdf'),
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('menunggu', $laporan->fresh()->status);
+        $this->assertSame(1, LaporanAkhir::where('kelompok_kkn_id', $this->kelompok->id)->count());
+    }
+
     private function uploadLaporan(): void
     {
         $this->actingAs($this->mahasiswa)->post(route('mahasiswa.laporan-akhir.store'), [

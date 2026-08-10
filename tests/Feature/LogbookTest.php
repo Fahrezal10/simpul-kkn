@@ -127,6 +127,35 @@ class LogbookTest extends TestCase
             ->whereDate('tanggal', $data['tanggal'])->count());
     }
 
+    #[Test]
+    public function logbook_revisi_dapat_disubmit_ulang(): void
+    {
+        $this->kelompok->update(['status' => 'aktif']);
+        $this->aktifkanDanIsiLogbook();
+
+        $logbook = Logbook::firstOrFail();
+
+        // DPL minta revisi.
+        $this->actingAs($this->dpl)
+            ->post(route('dosen.logbook.revisi', $logbook), ['catatan_dpl' => 'Perbaiki deskripsi.'])
+            ->assertRedirect();
+        $this->assertSame('revisi', $logbook->fresh()->status);
+
+        // Mahasiswa submit ulang di tanggal sama → update ke menunggu (bukan duplikat).
+        $this->actingAs($this->mahasiswa)
+            ->post(route('mahasiswa.logbook.store'), [
+                'tanggal'            => now()->subDay()->format('Y-m-d'),
+                'deskripsi_kegiatan' => 'Deskripsi yang diperbaiki.',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('menunggu', $logbook->fresh()->status);
+        $this->assertSame('Deskripsi yang diperbaiki.', $logbook->fresh()->deskripsi_kegiatan);
+        // Tetap 1 baris untuk tanggal tsb.
+        $this->assertSame(1, Logbook::where('mahasiswa_id', $this->mahasiswa->mahasiswa->id)
+            ->whereDate('tanggal', now()->subDay()->format('Y-m-d'))->count());
+    }
+
     private function aktifkanDanIsiLogbook(): void
     {
         $this->actingAs($this->mahasiswa)->post(route('mahasiswa.logbook.store'), [
