@@ -20,6 +20,7 @@ use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\DashboardGisController;
+use App\Http\Controllers\Shared\MasterDataController;
 use App\Http\Controllers\Shared\NotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-as-read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::post('/notifications/ajax/{id}/read', [NotificationController::class, 'markAsReadAjax'])->name('notifications.mark-as-read-ajax');
+
+    /* ===== UC-08: Kelola Master Data (CRUD generik oleh Bapperida) ===== */
+    Route::prefix('master-data')->middleware('role:bapperida,superadmin')->group(function () {
+        Route::get('/', [MasterDataController::class, 'index'])->name('master-data.index');
+        Route::get('/{jenis}', [MasterDataController::class, 'index'])->name('master-data.list');
+        Route::get('/{jenis}/data', [MasterDataController::class, 'data'])->name('master-data.data');
+        Route::post('/{jenis}', [MasterDataController::class, 'store'])->name('master-data.store');
+        Route::put('/{jenis}/{id}', [MasterDataController::class, 'update'])->name('master-data.update');
+        Route::delete('/{jenis}/{id}', [MasterDataController::class, 'destroy'])->name('master-data.destroy');
+    });
 
     // Dashboard per-role → lewat DashboardController agar statistik & variabel
     // view (roleSlug, roleLabel, stats) selalu lengkap.

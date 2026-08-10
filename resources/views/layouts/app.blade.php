@@ -95,6 +95,12 @@
                             <span>Monitoring & Evaluasi</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('master-data.*') ? 'active' : '' }}" href="{{ route('master-data.index') }}">
+                            <i class="bi bi-database-gear"></i>
+                            <span>Master Data</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'kecamatan' || $role === 'superadmin')
