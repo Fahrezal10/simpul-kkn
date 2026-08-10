@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\Auth\PerguruanTinggiRegistrationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Bapperida\DesaController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
+use App\Http\Controllers\Desa\ProfilDesaController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
+use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\NotificationController;
 use Illuminate\Support\Facades\Route;
@@ -85,6 +88,16 @@ Route::middleware('auth')->group(function () {
             ->name('bapperida.permohonan.verify');
         Route::post('permohonan/{permohonan}/reject', [PermohonanVerificationController::class, 'reject'])
             ->name('bapperida.permohonan.reject');
+
+        /* ===== UC-12: Master Data Desa (CRUD oleh Bapperida) ===== */
+        Route::get('desa', [DesaController::class, 'index'])->name('bapperida.desa.index');
+        Route::get('desa/data', [DesaController::class, 'data'])->name('bapperida.desa.data');
+        Route::get('desa/create', [DesaController::class, 'create'])->name('bapperida.desa.create');
+        Route::post('desa', [DesaController::class, 'store'])->name('bapperida.desa.store');
+        Route::get('desa/{desa}', [DesaController::class, 'show'])->name('bapperida.desa.show');
+        Route::get('desa/{desa}/edit', [DesaController::class, 'edit'])->name('bapperida.desa.edit');
+        Route::put('desa/{desa}', [DesaController::class, 'update'])->name('bapperida.desa.update');
+        Route::delete('desa/{desa}', [DesaController::class, 'destroy'])->name('bapperida.desa.destroy');
     });
 
     /* ===== UC-02/03/04: Permohonan KKN oleh PT ===== */
@@ -94,6 +107,27 @@ Route::middleware('auth')->group(function () {
         Route::get('permohonan/create', [PermohonanController::class, 'create'])->name('perguruan-tinggi.permohonan.create');
         Route::post('permohonan', [PermohonanController::class, 'store'])->name('perguruan-tinggi.permohonan.store');
         Route::get('permohonan/{permohonan}', [PermohonanController::class, 'show'])->name('perguruan-tinggi.permohonan.show');
+    });
+
+    /* ===== UC-12: Kelola profil & potensi desa oleh Operator Desa ===== */
+    Route::prefix('desa')->middleware('role:desa,superadmin')->group(function () {
+        Route::get('profil', [ProfilDesaController::class, 'index'])->name('desa.profil.index');
+        Route::get('profil/edit', [ProfilDesaController::class, 'edit'])->name('desa.profil.edit');
+        Route::put('profil', [ProfilDesaController::class, 'update'])->name('desa.profil.update');
+        Route::post('potensi', [ProfilDesaController::class, 'potensiStore'])->name('desa.profil.potensi.store');
+        Route::delete('potensi/{potensi}', [ProfilDesaController::class, 'potensiDestroy'])->name('desa.profil.potensi.destroy');
+        Route::post('permasalahan', [ProfilDesaController::class, 'permasalahanStore'])->name('desa.profil.permasalahan.store');
+        Route::delete('permasalahan/{permasalahan}', [ProfilDesaController::class, 'permasalahanDestroy'])->name('desa.profil.permasalahan.destroy');
+        Route::post('kebutuhan', [ProfilDesaController::class, 'kebutuhanStore'])->name('desa.profil.kebutuhan.store');
+        Route::delete('kebutuhan/{kebutuhan}', [ProfilDesaController::class, 'kebutuhanDestroy'])->name('desa.profil.kebutuhan.destroy');
+    });
+
+    /* ===== UC-10: Input isu strategis oleh Operator Perangkat Daerah ===== */
+    Route::prefix('perangkat-daerah')->middleware('role:perangkat_daerah,superadmin')->group(function () {
+        Route::get('isu-strategis', [IsuStrategisController::class, 'index'])->name('perangkat-daerah.isu-strategis.index');
+        Route::get('isu-strategis/data', [IsuStrategisController::class, 'data'])->name('perangkat-daerah.isu-strategis.data');
+        Route::post('isu-strategis', [IsuStrategisController::class, 'store'])->name('perangkat-daerah.isu-strategis.store');
+        Route::delete('isu-strategis/{isu}', [IsuStrategisController::class, 'destroy'])->name('perangkat-daerah.isu-strategis.destroy');
     });
 
     Route::get('/mahasiswa', function () {

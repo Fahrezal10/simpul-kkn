@@ -64,6 +64,32 @@
                             <span>Verifikasi Permohonan</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.desa.*') ? 'active' : '' }}" href="{{ route('bapperida.desa.index') }}">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Master Data Desa</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($role === 'desa' || $role === 'superadmin')
+                    <li class="nav-section">Desa</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('desa.profil.*') ? 'active' : '' }}" href="{{ route('desa.profil.index') }}">
+                            <i class="bi bi-house-gear"></i>
+                            <span>Profil & Potensi Desa</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($role === 'perangkat_daerah' || $role === 'superadmin')
+                    <li class="nav-section">Perangkat Daerah</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('perangkat-daerah.isu-strategis.*') ? 'active' : '' }}" href="{{ route('perangkat-daerah.isu-strategis.index') }}">
+                            <i class="bi bi-bullseye"></i>
+                            <span>Isu Strategis</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
 
