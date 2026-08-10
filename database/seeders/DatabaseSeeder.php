@@ -13,9 +13,9 @@ class DatabaseSeeder extends Seeder
             KecamatanDesaSeeder::class,
             AdminUserSeeder::class,
             PerguruanTinggiSeeder::class,
-            // Fase 2 (pemilik: ical): akun demo role desa & OPD.
-            // Catatan: MatchingDemoSeeder dipanggil setelah branch
-            // matching-engine di-merge ke main (file-nya belum ada di branch ini).
+            // Fase 2 (pemilik: ical): data demo matching + akun role desa & OPD.
+            // MatchingDemoSeeder setelah matching-engine di-merge ke main.
+            MatchingDemoSeeder::class,
             DesaOpdUserSeeder::class,
         ]);
     }
