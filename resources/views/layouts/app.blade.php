@@ -70,6 +70,22 @@
                             <span>Master Data Desa</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.approval-final.*') ? 'active' : '' }}" href="{{ route('bapperida.approval-final.index') }}">
+                            <i class="bi bi-check2-circle"></i>
+                            <span>Persetujuan Akhir</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($role === 'kecamatan' || $role === 'superadmin')
+                    <li class="nav-section">Kecamatan</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('kecamatan.verifikasi.*') ? 'active' : '' }}" href="{{ route('kecamatan.verifikasi.index') }}">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>Verifikasi Kesiapan Desa</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'desa' || $role === 'superadmin')

@@ -10,26 +10,32 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Akun contoh role DESA & PERANGKAT DAERAH untuk demo modul-desa (UC-10 & UC-12).
+ * Akun contoh role DESA, PERANGKAT DAERAH, & KECAMATAN untuk demo modul Fase 2.
  *
  * Password semua akun: "password" (konvensi akun seeder).
  *  - desa@wanakaya.go.id     → operator Desa Wanakaya (Kec. Haurgeulis)
  *  - desa@jatibarang.go.id   → operator Desa Jatibarang
  *  - opd@kominfo.go.id       → operator Perangkat Daerah (Dinkominfo) — isu strategis
  *  - opd@ketapang.go.id      → operator Perangkat Daerah (Dinas Ketahanan Pangan)
+ *  - kec@haurgeulis.go.id    → operator Kecamatan Haurgeulis (verifikasi kesiapan)
+ *  - kec@jatibarang.go.id    → operator Kecamatan Jatibarang
  */
 class DesaOpdUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $roleDesa = DB::table('roles')->where('nama_role', 'desa')->value('id');
-        $roleOpd  = DB::table('roles')->where('nama_role', 'perangkat_daerah')->value('id');
+        $roleDesa  = DB::table('roles')->where('nama_role', 'desa')->value('id');
+        $roleOpd   = DB::table('roles')->where('nama_role', 'perangkat_daerah')->value('id');
+        $roleKec   = DB::table('roles')->where('nama_role', 'kecamatan')->value('id');
 
         $this->akunDesa('Wanakaya', 'Haurgeulis', 'desa@wanakaya.go.id', $roleDesa);
         $this->akunDesa('Jatibarang', 'Jatibarang', 'desa@jatibarang.go.id', $roleDesa);
 
         $this->akunOpd('Dinas Komunikasi dan Informatika Kab. Indramayu', 'opd@kominfo.go.id', $roleOpd);
         $this->akunOpd('Dinas Ketahanan Pangan dan Pertanian Kab. Indramayu', 'opd@ketapang.go.id', $roleOpd);
+
+        $this->akunKecamatan('Haurgeulis', 'kec@haurgeulis.go.id', $roleKec);
+        $this->akunKecamatan('Jatibarang', 'kec@jatibarang.go.id', $roleKec);
     }
 
     private function akunDesa(string $namaDesa, string $namaKecamatan, string $email, $roleId): void
@@ -88,6 +94,31 @@ class DesaOpdUserSeeder extends Seeder
 
         if (! $opd->user_id || $opd->user_id !== $user->id) {
             $opd->update(['user_id' => $user->id]);
+        }
+    }
+
+    private function akunKecamatan(string $namaKecamatan, string $email, $roleId): void
+    {
+        $kecamatan = \App\Models\Kecamatan::where('nama_kecamatan', $namaKecamatan)->first();
+
+        if (! $kecamatan) {
+            $this->command?->warn("Kecamatan {$namaKecamatan} tidak ditemukan — akun dilewati.");
+            return;
+        }
+
+        $user = User::updateOrCreate(
+            ['email' => $email],
+            [
+                'role_id'         => $roleId,
+                'nama'            => "Operator Kecamatan {$namaKecamatan}",
+                'password'        => Hash::make('password'),
+                'status_aktif'    => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        if (! $kecamatan->user_id || $kecamatan->user_id !== $user->id) {
+            $kecamatan->update(['user_id' => $user->id]);
         }
     }
 }

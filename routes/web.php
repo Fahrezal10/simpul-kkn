@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Auth\PerguruanTinggiRegistrationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Bapperida\ApprovalFinalController;
 use App\Http\Controllers\Bapperida\DesaController;
 use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
 use App\Http\Controllers\Desa\ProfilDesaController;
+use App\Http\Controllers\Kecamatan\VerifikasiKecamatanController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
@@ -107,6 +109,13 @@ Route::middleware('auth')->group(function () {
         Route::get('desa/{desa}/edit', [DesaController::class, 'edit'])->name('bapperida.desa.edit');
         Route::put('desa/{desa}', [DesaController::class, 'update'])->name('bapperida.desa.update');
         Route::delete('desa/{desa}', [DesaController::class, 'destroy'])->name('bapperida.desa.destroy');
+
+        /* ===== UC-07: Persetujuan akhir pelaksanaan KKN ===== */
+        Route::get('approval-final', [ApprovalFinalController::class, 'index'])->name('bapperida.approval-final.index');
+        Route::get('approval-final/data', [ApprovalFinalController::class, 'data'])->name('bapperida.approval-final.data');
+        Route::get('approval-final/{kelompokKkn}', [ApprovalFinalController::class, 'show'])->name('bapperida.approval-final.show');
+        Route::post('approval-final/{kelompokKkn}/approve', [ApprovalFinalController::class, 'approve'])->name('bapperida.approval-final.approve');
+        Route::post('approval-final/{kelompokKkn}/tolak', [ApprovalFinalController::class, 'tolak'])->name('bapperida.approval-final.tolak');
     });
 
     /* ===== UC-02/03/04: Permohonan KKN oleh PT ===== */
@@ -137,6 +146,14 @@ Route::middleware('auth')->group(function () {
         Route::get('isu-strategis/data', [IsuStrategisController::class, 'data'])->name('perangkat-daerah.isu-strategis.data');
         Route::post('isu-strategis', [IsuStrategisController::class, 'store'])->name('perangkat-daerah.isu-strategis.store');
         Route::delete('isu-strategis/{isu}', [IsuStrategisController::class, 'destroy'])->name('perangkat-daerah.isu-strategis.destroy');
+    });
+
+    /* ===== UC-11: Verifikasi kesiapan desa oleh Operator Kecamatan ===== */
+    Route::prefix('kecamatan')->middleware('role:kecamatan,superadmin')->group(function () {
+        Route::get('verifikasi', [VerifikasiKecamatanController::class, 'index'])->name('kecamatan.verifikasi.index');
+        Route::get('verifikasi/data', [VerifikasiKecamatanController::class, 'data'])->name('kecamatan.verifikasi.data');
+        Route::get('verifikasi/{kelompokKkn}', [VerifikasiKecamatanController::class, 'show'])->name('kecamatan.verifikasi.show');
+        Route::post('verifikasi/{kelompokKkn}', [VerifikasiKecamatanController::class, 'store'])->name('kecamatan.verifikasi.store');
     });
 
     Route::get('/mahasiswa', function () {

@@ -56,4 +56,9 @@ class KelompokKkn extends Model
     {
         return $this->hasMany(Logbook::class);
     }
+
+    public function verifikasiKecamatan()
+    {
+        return $this->hasMany(VerifikasiKecamatan::class);
+    }
 }
