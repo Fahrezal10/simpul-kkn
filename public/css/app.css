@@ -685,3 +685,21 @@ textarea.form-control { height: auto; }
     background: var(--neutral-100);
 }
 .notification-panel-footer:hover { background: rgba(27, 58, 107, 0.06); }
+
+/* ===== Dashboard GIS (Leaflet) ===== */
+.gis-marker {
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    color: var(--primary);
+    text-shadow: 0 0 3px rgba(255,255,255,.9);
+}
+.gis-marker-aktif {
+    color: var(--teal);
+    font-size: 1.8rem;
+}
+.gis-marker .bi {
+    display: block;
+}
+#petaDesa { z-index: 1; }
+.leaflet-container { font-family: inherit; }

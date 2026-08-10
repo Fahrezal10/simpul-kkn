@@ -19,6 +19,7 @@ use App\Http\Controllers\Mahasiswa\LogbookController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
+use App\Http\Controllers\Shared\DashboardGisController;
 use App\Http\Controllers\Shared\NotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,10 @@ Route::post('/register-pt', [PerguruanTinggiRegistrationController::class, 'regi
 /* ===== Dashboard (redirect per-role) ===== */
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    /* UC-09: Dashboard GIS (peta Leaflet) */
+    Route::get('/gis', [DashboardGisController::class, 'index'])->name('dashboard.gis');
+    Route::get('/gis/data', [DashboardGisController::class, 'data'])->name('dashboard.gis.data');
 
     /* SYS-01: Notifikasi in-app */
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

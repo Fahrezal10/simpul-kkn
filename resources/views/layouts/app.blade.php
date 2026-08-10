@@ -40,6 +40,13 @@
 
                 @php $role = optional(Auth::user()->role)->nama_role; @endphp
 
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard.gis*') ? 'active' : '' }}" href="{{ route('dashboard.gis') }}">
+                        <i class="bi bi-map"></i>
+                        <span>Peta (GIS)</span>
+                    </a>
+                </li>
+
                 @if ($role === 'perguruan_tinggi' || $role === 'superadmin')
                     <li class="nav-section">Perguruan Tinggi</li>
                     <li class="nav-item">
