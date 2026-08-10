@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             // MatchingDemoSeeder setelah matching-engine di-merge ke main.
             MatchingDemoSeeder::class,
             DesaOpdUserSeeder::class,
+            // Fase 4 (pemilik: ical): data demo monitoring & evaluasi.
+            MonitoringDemoSeeder::class,
         ]);
     }
 }

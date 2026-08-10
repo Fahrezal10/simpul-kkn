@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\PerguruanTinggiRegistrationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Bapperida\ApprovalFinalController;
 use App\Http\Controllers\Bapperida\DesaController;
+use App\Http\Controllers\Bapperida\MonitoringController;
 use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
@@ -113,6 +114,9 @@ Route::middleware('auth')->group(function () {
         Route::get('desa/{desa}/edit', [DesaController::class, 'edit'])->name('bapperida.desa.edit');
         Route::put('desa/{desa}', [DesaController::class, 'update'])->name('bapperida.desa.update');
         Route::delete('desa/{desa}', [DesaController::class, 'destroy'])->name('bapperida.desa.destroy');
+
+        /* ===== UC-09: Dashboard Monitoring & Evaluasi ===== */
+        Route::get('monitoring', [MonitoringController::class, 'index'])->name('bapperida.monitoring.index');
 
         /* ===== UC-07: Persetujuan akhir pelaksanaan KKN ===== */
         Route::get('approval-final', [ApprovalFinalController::class, 'index'])->name('bapperida.approval-final.index');

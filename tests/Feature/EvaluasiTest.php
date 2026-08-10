@@ -70,7 +70,11 @@ class EvaluasiTest extends TestCase
             ])
             ->assertForbidden();
 
-        $this->assertDatabaseCount('evaluasi_desa', 0);
+        // Tidak ada evaluasi untuk desa Ciherang (kelompok dipindah dari Wanakaya).
+        $this->assertDatabaseMissing('evaluasi_desa', [
+            'desa_id' => $desaLain->id,
+            'kelompok_kkn_id' => $this->kelompok->id,
+        ]);
     }
 
     #[Test]

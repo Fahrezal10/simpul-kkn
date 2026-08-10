@@ -82,6 +82,12 @@
                             <span>Persetujuan Akhir</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('bapperida.monitoring.*') ? 'active' : '' }}" href="{{ route('bapperida.monitoring.index') }}">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Monitoring & Evaluasi</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'kecamatan' || $role === 'superadmin')
