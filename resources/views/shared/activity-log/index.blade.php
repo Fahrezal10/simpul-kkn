@@ -15,7 +15,8 @@
                 <input type="text" id="searchLog" class="form-control form-control-sm ps-5"
                        placeholder="Cari aksi / deskripsi / pengguna...">
             </div>
-            <select id="filterAksi" class="form-select form-select-sm w-auto">
+            <select id="filterAksi" class="form-select form-select-sm w-auto"
+                    data-searchable data-placeholder="Cari aksi…">
                 <option value="">Semua Aksi</option>
             </select>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="btnReset">Reset</button>
@@ -95,6 +96,8 @@
                             opts += '<option value="' + a + '">' + a + '</option>';
                         });
                         $aksi.html(opts);
+                        // Opsi sudah terisi → upgrade ke dropdown searchable (Tom Select).
+                        if (window.SimpulSelect) window.SimpulSelect.reinit($aksi[0]);
                     }
                     if (!res.data.length) {
                         $tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="bi bi-clock-history"></i><h6 class="mt-3">Belum ada aktivitas</h6><p>Jejak aksi akan tampil setelah pengguna melakukan tindakan pada sistem.</p></div></td></tr>';
@@ -130,7 +133,13 @@
                 searchTimer = setTimeout(function () { load(1); }, 350);
             });
             $('#btnReset').on('click', function () {
-                $search.val(''); $aksi.val(''); load(1);
+                $search.val('');
+                if (window.SimpulSelect) {
+                    window.SimpulSelect.setValue($aksi[0], '');
+                } else {
+                    $aksi.val('');
+                }
+                load(1);
             });
             document.getElementById('pagination').addEventListener('click', function (e) {
                 var link = e.target.closest('a[data-page]');

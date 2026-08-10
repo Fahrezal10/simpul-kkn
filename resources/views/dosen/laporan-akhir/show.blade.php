@@ -23,10 +23,10 @@
                     <dt class="col-4 text-muted">Kelompok</dt>
                     <dd class="col-8">{{ $laporan->kelompokKkn->kode_kelompok }}</dd>
                     <dt class="col-4 text-muted">Laporan</dt>
-                    <dd class="col-8"><a href="{{ asset('storage/'.$laporan->file_laporan) }}" target="_blank"><i class="bi bi-file-earmark-pdf me-1"></i>Unduh Laporan</a></dd>
+                    <dd class="col-8"><a href="{{ route('file.download', ['jenis' => 'laporan-akhir', 'path' => $laporan->file_laporan]) }}" target="_blank"><i class="bi bi-file-earmark-pdf me-1"></i>Unduh Laporan</a></dd>
                     @if ($laporan->file_luaran)
                         <dt class="col-4 text-muted">Luaran</dt>
-                        <dd class="col-8"><a href="{{ asset('storage/'.$laporan->file_luaran) }}" target="_blank"><i class="bi bi-paperclip me-1"></i>Unduh Luaran</a></dd>
+                        <dd class="col-8"><a href="{{ route('file.download', ['jenis' => 'laporan-akhir', 'path' => $laporan->file_luaran]) }}" target="_blank"><i class="bi bi-paperclip me-1"></i>Unduh Luaran</a></dd>
                     @endif
                     @if ($laporan->catatan_verifikasi)
                         <dt class="col-4 text-muted">Catatan</dt>

@@ -53,6 +53,114 @@
         });
     }
 
+    /* ======================================================================
+       Dropdown data dengan pencarian (searchable select) via Tom Select.
+       Dipakai untuk <select> bertanda data-searchable — daftar opsi panjang
+       (kecamatan, DPL, filter) sehingga perlu kotak cari, bukan scroll manual.
+
+       API global:
+         window.SimpulSelect.init()               — inisialisasi semua select[data-searchable]
+         window.SimpulSelect.reinit(scopeEl)      — inisialisasi ulang dalam scope
+                                                    (elemen dinamis / filter yang
+                                                    opsi-nya di-populate via AJAX)
+         window.SimpulSelect.setValue(el, v)      — set nilai + refresh UI
+
+       Bila Tom Select gagal dimuat (CDN blokir/offline) → fallback ke <select>
+       native tanpa mengubah perilaku form.
+       ====================================================================== */
+    window.SimpulSelect = (function () {
+        function tsAvailable() {
+            return typeof window.TomSelect === 'function';
+        }
+
+        // Opsi default yang disesuaikan dengan tema SIMPUL-KKN.
+        function baseOptions() {
+            return {
+                placeholder: 'Cari…',
+                allowEmptyOption: true,
+                create: false,
+                maxOptions: 50,
+                // Tampilkan opsi apa adanya; baris placeholder (value='')
+                // dibiarkan sebagai item biasa agar bisa di-reset.
+                render: {
+                    option: function (data, escape) {
+                        return '<div class="option">' + escape(data.text) + '</div>';
+                    },
+                    item: function (data, escape) {
+                        return '<div class="item">' + escape(data.text) + '</div>';
+                    }
+                },
+                dropdownDirection: 'auto'
+            };
+        }
+
+        function makeSelect(el, opts) {
+            if (!tsAvailable()) return null;
+            try {
+                var ts = new window.TomSelect(el, opts || baseOptions());
+                // Warisi state error validasi ke wrapper Tom Select (Bootstrap).
+                if (el.classList.contains('is-invalid') && ts.wrapper) {
+                    ts.wrapper.classList.add('is-invalid');
+                }
+                return ts;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function initWithin(scope) {
+            if (!scope) return;
+            var nodes = scope.querySelectorAll ? scope.querySelectorAll('select[data-searchable]') : [];
+            nodes.forEach(function (el) {
+                if (el.dataset.simpulTs === '1') return; // sudah di-upgrade
+                // Select yang opsi-nya masih placeholder saja (filter AJAX belum
+                // selesai di-populate) → tunda sampai reinit() dipanggil setelah
+                // opsi terisi. Hindari instance Tom Select ganda.
+                if (el.dataset.simpulLazy === '1') return;
+                if (el.options.length <= 1) {
+                    el.dataset.simpulLazy = '1'; // tunggu populate
+                    return;
+                }
+                var ts = makeSelect(el);
+                if (ts) el.dataset.simpulTs = '1';
+            });
+        }
+
+        return {
+            init: function () { initWithin(document); },
+            reinit: function (scopeEl) {
+                var scope = scopeEl || document;
+                // Buka kembali select yang sempat di-skip karena opsi masih
+                // placeholder (kini sudah di-populate) sebelum upgrade ulang.
+                if (scope.querySelectorAll) {
+                    scope.querySelectorAll('select[data-searchable]').forEach(function (el) {
+                        if (el.dataset.simpulTs === '1') return;
+                        delete el.dataset.simpulLazy;
+                    });
+                }
+                initWithin(scope);
+            },
+            isApplied: function () { return tsAvailable(); },
+            // Set nilai pada select yang sudah di-upgrade Tom Select.
+            setValue: function (el, v) {
+                if (!el) return;
+                var val = v == null || v === '' ? '' : String(v);
+                if (el.dataset.simpulTs === '1' && el.tomselect) {
+                    el.tomselect.setValue(val);
+                } else {
+                    el.value = val;
+                }
+            }
+        };
+    })();
+
+    // Inisialisasi dropdown searchable saat dokumen siap (setelah script layout).
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { window.SimpulSelect.init(); });
+    } else {
+        window.SimpulSelect.init();
+    }
+
     /* --- SYS-01: Klik notifikasi pada dropdown popup ---
        Tandai dibaca via AJAX, perbarui badge, lalu navigasi ke halaman sumber. */
     document.addEventListener('click', function (e) {

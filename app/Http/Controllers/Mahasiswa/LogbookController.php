@@ -53,7 +53,7 @@ class LogbookController extends Controller
             return [
                 'tanggal' => $l->tanggal->format('d M Y'),
                 'deskripsi'=> e($l->deskripsi_kegiatan),
-                'foto'    => $l->foto ? '<a href="'.asset('storage/'.$l->foto).'" target="_blank"><span class="badge text-bg-light border"><i class="bi bi-image me-1"></i>Foto</span></a>' : '-',
+                'foto'    => $l->foto ? '<a href="'.route('file.download', ['jenis' => 'logbook', 'path' => $l->foto]).'" target="_blank"><span class="badge text-bg-light border"><i class="bi bi-image me-1"></i>Foto</span></a>' : '-',
                 'status'  => view('components.status-badge', ['status' => $l->status])->render(),
                 'catatan' => e($l->catatan_dpl ?: '-'),
             ];
@@ -90,7 +90,8 @@ class LogbookController extends Controller
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('logbook', 'public');
+            // H1: simpan ke disk private (local) — diakses via route file.download terproteksi.
+            $fotoPath = $request->file('foto')->store('logbook');
         }
 
         // Logbook revisi (status 'revisi') boleh di-submit ulang — perbarui baris

@@ -57,7 +57,7 @@ class LogbookApprovalController extends Controller
                 'kelompok' => '<strong>'.e($l->kelompokKkn->kode_kelompok).'</strong>',
                 'mahasiswa'=> e($l->mahasiswa->nama ?? '-'),
                 'deskripsi'=> e($l->deskripsi_kegiatan),
-                'foto'     => $l->foto ? '<a href="'.asset('storage/'.$l->foto).'" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-image me-1"></i>Lihat</a>' : '-',
+                'foto'     => $l->foto ? '<a href="'.route('file.download', ['jenis' => 'logbook', 'path' => $l->foto]).'" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-image me-1"></i>Lihat</a>' : '-',
                 'aksi'     => '<a href="'.route('dosen.logbook.show', $l).'" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye me-1"></i> Review</a>',
             ];
         });

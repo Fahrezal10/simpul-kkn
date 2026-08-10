@@ -59,7 +59,7 @@ class PerguruanTinggiRegistrationController extends Controller
                 $dokumenPath = null;
                 if ($request->hasFile('dokumen_legalitas')) {
                     $dokumenPath = $request->file('dokumen_legalitas')
-                        ->store('perguruan-tinggi/legalitas', 'public');
+                        ->store('perguruan-tinggi/legalitas');
                 }
 
                 PerguruanTinggi::create([

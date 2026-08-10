@@ -44,8 +44,8 @@ class LaporanAkhirController extends Controller
 
         $rows = $laporan->map(function ($l) {
             return [
-                'file_laporan' => '<a href="'.asset('storage/'.$l->file_laporan).'" target="_blank"><i class="bi bi-file-earmark-pdf me-1"></i>Laporan</a>',
-                'file_luaran'  => $l->file_luaran ? '<a href="'.asset('storage/'.$l->file_luaran).'" target="_blank"><i class="bi bi-paperclip me-1"></i>Luaran</a>' : '-',
+                'file_laporan' => '<a href="'.route('file.download', ['jenis' => 'laporan-akhir', 'path' => $l->file_laporan]).'" target="_blank"><i class="bi bi-file-earmark-pdf me-1"></i>Laporan</a>',
+                'file_luaran'  => $l->file_luaran ? '<a href="'.route('file.download', ['jenis' => 'laporan-akhir', 'path' => $l->file_luaran]).'" target="_blank"><i class="bi bi-paperclip me-1"></i>Luaran</a>' : '-',
                 'uploaded_at'  => $l->uploaded_at?->format('d M Y H:i'),
                 'status'       => view('components.status-badge', ['status' => $l->status])->render(),
                 'catatan'      => e($l->catatan_verifikasi ?: '-'),
@@ -66,9 +66,10 @@ class LaporanAkhirController extends Controller
             'file_luaran'  => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,zip', 'max:10240'],
         ]);
 
-        $laporanPath = $request->file('file_laporan')->store('laporan-akhir', 'public');
+        // H1: simpan ke disk private (local) — diakses via route file.download terproteksi.
+        $laporanPath = $request->file('file_laporan')->store('laporan-akhir');
         $luaranPath  = $request->hasFile('file_luaran')
-            ? $request->file('file_luaran')->store('laporan-akhir', 'public')
+            ? $request->file('file_luaran')->store('laporan-akhir')
             : null;
 
         // Laporan revisi boleh di-upload ulang (update ke menunggu);

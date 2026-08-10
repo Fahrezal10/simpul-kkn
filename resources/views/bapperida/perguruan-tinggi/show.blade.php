@@ -26,7 +26,7 @@
                             <th class="text-muted">Dokumen Legalitas</th>
                             <td>
                                 @if ($pt->dokumen_legalitas)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($pt->dokumen_legalitas) }}"
+                                    <a href="{{ route('file.download', ['jenis' => 'legalitas', 'path' => $pt->dokumen_legalitas]) }}"
                                        target="_blank" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-file-earmark-pdf me-1"></i> Lihat Dokumen
                                     </a>

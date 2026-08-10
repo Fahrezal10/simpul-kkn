@@ -47,6 +47,23 @@ return [
             'report' => false,
         ],
 
+        /*
+        |--------------------------------------------------------------------------
+        | Disk PRIVATE
+        |--------------------------------------------------------------------------
+        | Dokumen internal (surat/proposal permohonan, legalitas PT, laporan akhir
+        | & luaran, foto logbook) disimpan di sini — TIDAK diekspos lewat symlink
+        | publik. Hanya diakses via route file.download yang terproteksi auth + otorisasi.
+        | Root sama dengan disk 'local' (default FILESYSTEM_DISK), jadi file dari
+        | ->store('...') tanpa disk argumen akan ditemukan juga.
+        */
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

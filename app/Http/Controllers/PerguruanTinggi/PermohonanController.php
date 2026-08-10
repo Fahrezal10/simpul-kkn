@@ -314,6 +314,7 @@ class PermohonanController extends Controller
 
     private function storeFile(\Illuminate\Http\UploadedFile $file): string
     {
-        return $file->store('permohonan', 'public');
+        // H1: simpan ke disk private (local) — diakses via route file.download terproteksi.
+        return $file->store('permohonan');
     }
 }

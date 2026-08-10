@@ -30,7 +30,7 @@
                     <dd class="col-8">{{ $logbook->deskripsi_kegiatan }}</dd>
                     @if ($logbook->foto)
                         <dt class="col-4 text-muted">Foto</dt>
-                        <dd class="col-8"><a href="{{ asset('storage/'.$logbook->foto) }}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-image me-1"></i>Lihat Foto</a></dd>
+                        <dd class="col-8"><a href="{{ route('file.download', ['jenis' => 'logbook', 'path' => $logbook->foto]) }}" target="_blank" class="btn btn-sm btn-light"><i class="bi bi-image me-1"></i>Lihat Foto</a></dd>
                     @endif
                     @if ($logbook->catatan_dpl)
                         <dt class="col-4 text-muted">Catatan DPL</dt>

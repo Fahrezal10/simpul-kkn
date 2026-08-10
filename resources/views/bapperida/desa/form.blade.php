@@ -44,7 +44,8 @@
                     <div class="col-md-6">
                         <label class="form-label" for="kecamatan_id">Kecamatan <span class="text-danger">*</span></label>
                         <select name="kecamatan_id" id="kecamatan_id"
-                                class="form-select @error('kecamatan_id') is-invalid @enderror" required>
+                                class="form-select @error('kecamatan_id') is-invalid @enderror" required
+                                data-searchable data-placeholder="Cari kecamatan…">
                             <option value="">— Pilih Kecamatan —</option>
                             @foreach ($kecamatans as $kec)
                                 <option value="{{ $kec->id }}"
