@@ -99,4 +99,19 @@ class DashboardIntegrasiTest extends TestCase
         $this->actingAs($this->kecHaurgeulis)->get(route('kecamatan.dashboard'))->assertOk();
         $this->actingAs($this->bapperida)->get(route('bapperida.dashboard'))->assertOk();
     }
+
+    #[Test]
+    public function dashboard_mahasiswa_dan_dosen_menampilkan_kelompok_sendiri(): void
+    {
+        $mahasiswa = User::where('email', 'andi@uin.ac.id')->firstOrFail();
+        $dosen     = User::where('email', 'siti@uin.ac.id')->firstOrFail();
+
+        $this->actingAs($mahasiswa)->get(route('mahasiswa.dashboard'))->assertOk();
+        $this->actingAs($dosen)->get(route('dosen.dashboard'))->assertOk();
+
+        // Mahasiswa lihat kode kelompoknya sendiri (bukan global).
+        $kelompok = $mahasiswa->mahasiswa->kelompokKkn;
+        $response = $this->actingAs($mahasiswa)->get(route('dashboard'));
+        $response->assertOk()->assertSee($kelompok->kode_kelompok);
+    }
 }

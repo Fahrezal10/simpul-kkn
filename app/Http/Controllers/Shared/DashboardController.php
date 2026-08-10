@@ -38,6 +38,8 @@ class DashboardController extends Controller
             'kecamatan'                => $this->statKecamatan($user),
             'desa'                     => $this->statDesa($user),
             'perangkat-daerah'         => $this->statPerangkatDaerah($user),
+            'mahasiswa'                => $this->statMahasiswa($user),
+            'dosen'                    => $this->statDosen($user),
             default                    => $this->statKosong(),
         };
 
@@ -115,6 +117,30 @@ class DashboardController extends Controller
         return [
             'label' => $opd?->nama_opd ?? '',
             'isu'   => $opd ? IsuStrategis::where('perangkat_daerah_id', $opd->id)->count() : 0,
+        ];
+    }
+
+    private function statMahasiswa($user): array
+    {
+        $mahasiswa = $user->mahasiswa;
+
+        return [
+            'label'    => 'Kelompok KKN Anda',
+            'kelompok' => $this->kelompokPerStatus(
+                KelompokKkn::where('id', $mahasiswa?->kelompok_kkn_id)
+            ),
+            'kelompokKode' => $mahasiswa?->kelompokKkn?->kode_kelompok,
+        ];
+    }
+
+    private function statDosen($user): array
+    {
+        $dosen = $user->dosen;
+        $kelompokIds = $dosen?->kelompokKkn()->pluck('id') ?? collect();
+
+        return [
+            'label'    => 'Kelompok Bimbingan Anda',
+            'kelompok' => $this->kelompokPerStatus(KelompokKkn::whereIn('id', $kelompokIds)),
         ];
     }
 

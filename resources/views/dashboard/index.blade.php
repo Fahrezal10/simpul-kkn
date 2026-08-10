@@ -119,6 +119,11 @@
         <div class="row g-3">
             <div class="col-12">
                 <x-card title="Kelompok KKN per Status">
+                    @if (!empty($stats['kelompokKode']))
+                        <div class="mb-3 text-muted small">
+                            Kelompok Anda: <strong>{{ $stats['kelompokKode'] }}</strong>
+                        </div>
+                    @endif
                     <div class="d-flex flex-wrap gap-3">
                         <div class="stat-pill">
                             <span class="badge badge-amber">Menunggu Matching</span>
