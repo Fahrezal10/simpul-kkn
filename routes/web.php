@@ -8,7 +8,9 @@ use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
 use App\Http\Controllers\Desa\ProfilDesaController;
+use App\Http\Controllers\Dosen\LogbookApprovalController;
 use App\Http\Controllers\Kecamatan\VerifikasiKecamatanController;
+use App\Http\Controllers\Mahasiswa\LogbookController;
 use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
@@ -154,13 +156,28 @@ Route::middleware('auth')->group(function () {
         Route::post('verifikasi/{kelompokKkn}', [VerifikasiKecamatanController::class, 'store'])->name('kecamatan.verifikasi.store');
     });
 
-    Route::get('/mahasiswa', function () {
-        return view('dashboard.index', ['roleSlug' => 'mahasiswa', 'roleLabel' => 'Mahasiswa']);
-    })->middleware('role:mahasiswa,superadmin')->name('mahasiswa.dashboard');
+    // Dashboard mahasiswa/dosen → lewat DashboardController (variabel $stats lengkap).
+    Route::get('/mahasiswa', [DashboardController::class, 'index'])
+        ->middleware('role:mahasiswa,superadmin')->name('mahasiswa.dashboard');
 
-    Route::get('/dosen', function () {
-        return view('dashboard.index', ['roleSlug' => 'dosen', 'roleLabel' => 'Dosen']);
-    })->middleware('role:dosen,superadmin')->name('dosen.dashboard');
+    Route::get('/dosen', [DashboardController::class, 'index'])
+        ->middleware('role:dosen,superadmin')->name('dosen.dashboard');
+
+    /* ===== UC-14: Logbook harian oleh Mahasiswa ===== */
+    Route::prefix('mahasiswa')->middleware('role:mahasiswa,superadmin')->group(function () {
+        Route::get('logbook', [LogbookController::class, 'index'])->name('mahasiswa.logbook.index');
+        Route::get('logbook/data', [LogbookController::class, 'data'])->name('mahasiswa.logbook.data');
+        Route::post('logbook', [LogbookController::class, 'store'])->name('mahasiswa.logbook.store');
+    });
+
+    /* ===== UC-16: Approval logbook oleh DPL ===== */
+    Route::prefix('dosen')->middleware('role:dosen,superadmin')->group(function () {
+        Route::get('logbook', [LogbookApprovalController::class, 'index'])->name('dosen.logbook.index');
+        Route::get('logbook/data', [LogbookApprovalController::class, 'data'])->name('dosen.logbook.data');
+        Route::get('logbook/{logbook}', [LogbookApprovalController::class, 'show'])->name('dosen.logbook.show');
+        Route::post('logbook/{logbook}/approve', [LogbookApprovalController::class, 'approve'])->name('dosen.logbook.approve');
+        Route::post('logbook/{logbook}/revisi', [LogbookApprovalController::class, 'revisi'])->name('dosen.logbook.revisi');
+    });
 
     // Dashboard per-role → lewat DashboardController agar statistik & variabel
     // view (roleSlug, roleLabel, stats) selalu lengkap.

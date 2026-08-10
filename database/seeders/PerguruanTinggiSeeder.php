@@ -128,6 +128,24 @@ class PerguruanTinggiSeeder extends Seeder
             $mhs->update(['user_id' => $userMhs->id]);
         }
 
+        /* ===== Akun login DPL (dosen) contoh — 1 per kelompok ===== */
+        $roleDosen = DB::table('roles')->where('nama_role', 'dosen')->value('id');
+        foreach (Dosen::all() as $dosen) {
+            if (! $dosen->email) continue;
+
+            $userDosen = User::updateOrCreate(
+                ['email' => $dosen->email],
+                [
+                    'role_id'         => $roleDosen,
+                    'nama'            => $dosen->nama,
+                    'password'        => Hash::make('password'),
+                    'status_aktif'    => true,
+                    'email_verified_at' => now(),
+                ]
+            );
+            $dosen->update(['user_id' => $userDosen->id]);
+        }
+
         /* ===== PT 2: Menunggu approval ===== */
         $userPt2 = User::updateOrCreate(
             ['email' => 'pt-menunggu@uin.ac.id'],

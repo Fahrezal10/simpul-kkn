@@ -113,6 +113,26 @@
                         </a>
                     </li>
                 @endif
+
+                @if ($role === 'mahasiswa' || $role === 'superadmin')
+                    <li class="nav-section">Mahasiswa</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('mahasiswa.logbook.*') ? 'active' : '' }}" href="{{ route('mahasiswa.logbook.index') }}">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Logbook Harian</span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($role === 'dosen' || $role === 'superadmin')
+                    <li class="nav-section">DPL</li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dosen.logbook.*') ? 'active' : '' }}" href="{{ route('dosen.logbook.index') }}">
+                            <i class="bi bi-clipboard-check"></i>
+                            <span>Approval Logbook</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
 
             <div class="sidebar-footer">
