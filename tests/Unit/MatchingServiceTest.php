@@ -76,6 +76,29 @@ class MatchingServiceTest extends TestCase
         }
     }
 
+    public function test_run_tidak_mengubah_status_bila_semua_desa_ditolak(): void
+    {
+        $k = $this->kelompok();
+        $k->riwayatMatching()->delete();
+        $k->update(['status' => 'menunggu_matching', 'desa_id' => null]);
+
+        // Simulasikan seluruh desa sudah ditolak (jejak dipertahankan).
+        $hasil = (new \App\Services\MatchingService())->rank($k);
+        foreach ($hasil as $h) {
+            \App\Models\RiwayatMatching::updateOrCreate(
+                ['kelompok_kkn_id' => $k->id, 'desa_id' => $h['desa_id']],
+                ['status' => 'ditolak', 'skor_total' => 0]
+            );
+        }
+
+        // Run dengan status menunggu_matching — tidak ada kandidat layak,
+        // status TIDAK boleh naik ke verifikasi kecamatan.
+        (new \App\Services\MatchingService())->run($k, 1);
+
+        $this->assertSame('menunggu_matching', $k->fresh()->status);
+        $this->assertSame(0, $k->fresh()->riwayatMatching()->where('status', 'kandidat')->where('skor_total', '>', 0)->count());
+    }
+
     public function test_run_menyimpan_riwayat_dan_mengubah_status(): void
     {
         $k = $this->kelompok();

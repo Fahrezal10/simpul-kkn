@@ -58,15 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::post('/notifications/ajax/{id}/read', [NotificationController::class, 'markAsReadAjax'])->name('notifications.mark-as-read-ajax');
 
-    // Placeholder modul per role — diisi bertahap sesuai fase pengembangan.
-    // Contoh: Bapperida memverifikasi permohonan (Fase 1), dsb.
-    Route::get('/bapperida', function () {
-        return view('dashboard.index', ['roleSlug' => 'bapperida', 'roleLabel' => 'Bapperida']);
-    })->middleware('role:bapperida,superadmin')->name('bapperida.dashboard');
+    // Dashboard per-role → lewat DashboardController agar statistik & variabel
+    // view (roleSlug, roleLabel, stats) selalu lengkap.
+    Route::get('/bapperida', [DashboardController::class, 'index'])
+        ->middleware('role:bapperida,superadmin')->name('bapperida.dashboard');
 
-    Route::get('/perguruan-tinggi', function () {
-        return view('dashboard.index', ['roleSlug' => 'perguruan-tinggi', 'roleLabel' => 'Perguruan Tinggi']);
-    })->middleware('role:perguruan_tinggi,superadmin')->name('perguruan-tinggi.dashboard');
+    Route::get('/perguruan-tinggi', [DashboardController::class, 'index'])
+        ->middleware('role:perguruan_tinggi,superadmin')->name('perguruan-tinggi.dashboard');
 
     /* ===== UC-01: Persetujuan akun PT oleh Bapperida ===== */
     Route::prefix('bapperida')->middleware('role:bapperida,superadmin')->group(function () {
@@ -164,15 +162,14 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.index', ['roleSlug' => 'dosen', 'roleLabel' => 'Dosen']);
     })->middleware('role:dosen,superadmin')->name('dosen.dashboard');
 
-    Route::get('/perangkat-daerah', function () {
-        return view('dashboard.index', ['roleSlug' => 'perangkat-daerah', 'roleLabel' => 'Perangkat Daerah']);
-    })->middleware('role:perangkat_daerah,superadmin')->name('perangkat-daerah.dashboard');
+    // Dashboard per-role → lewat DashboardController agar statistik & variabel
+    // view (roleSlug, roleLabel, stats) selalu lengkap.
+    Route::get('/perangkat-daerah', [DashboardController::class, 'index'])
+        ->middleware('role:perangkat_daerah,superadmin')->name('perangkat-daerah.dashboard');
 
-    Route::get('/kecamatan', function () {
-        return view('dashboard.index', ['roleSlug' => 'kecamatan', 'roleLabel' => 'Kecamatan']);
-    })->middleware('role:kecamatan,superadmin')->name('kecamatan.dashboard');
+    Route::get('/kecamatan', [DashboardController::class, 'index'])
+        ->middleware('role:kecamatan,superadmin')->name('kecamatan.dashboard');
 
-    Route::get('/desa', function () {
-        return view('dashboard.index', ['roleSlug' => 'desa', 'roleLabel' => 'Desa']);
-    })->middleware('role:desa,superadmin')->name('desa.dashboard');
+    Route::get('/desa', [DashboardController::class, 'index'])
+        ->middleware('role:desa,superadmin')->name('desa.dashboard');
 });

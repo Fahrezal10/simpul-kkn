@@ -146,8 +146,12 @@ class MatchingService
                 ]);
             }
 
-            // Kelompok siap lanjut ke verifikasi kecamatan bila ada hasil.
-            if (count($hasil) > 0 && in_array($kelompok->status, ['menunggu_matching', 'terverifikasi'], true)) {
+            // Kelompok siap lanjut ke verifikasi kecamatan bila ada desa KANDIDAT
+            // yang layak (skor > 0). Bila semua desa sudah ditolak (skor 0),
+            // biarkan status menunggu_matching — Bapperida perlu meninjau,
+            // dan kecamatan tidak akan melihat kelompok tanpa desa terpilih.
+            $adaKandidat = collect($hasil)->contains(fn ($h) => $h['skor_total'] > 0);
+            if ($adaKandidat && in_array($kelompok->status, ['menunggu_matching', 'terverifikasi'], true)) {
                 $kelompok->update(['status' => 'menunggu_verifikasi_kecamatan']);
             }
 

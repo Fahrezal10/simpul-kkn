@@ -89,4 +89,14 @@ class DashboardIntegrasiTest extends TestCase
 
         $response->assertSee('Desa '.$desa->nama_desa);
     }
+
+    #[Test]
+    public function placeholder_dashboard_per_role_tidak_error(): void
+    {
+        // Route placeholder /desa, /kecamatan, /bapperida kini lewat
+        // DashboardController sehingga variabel $stats selalu tersedia.
+        $this->actingAs($this->desaUser)->get(route('desa.dashboard'))->assertOk();
+        $this->actingAs($this->kecHaurgeulis)->get(route('kecamatan.dashboard'))->assertOk();
+        $this->actingAs($this->bapperida)->get(route('bapperida.dashboard'))->assertOk();
+    }
 }
