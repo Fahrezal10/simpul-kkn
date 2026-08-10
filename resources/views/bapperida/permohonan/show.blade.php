@@ -43,7 +43,7 @@
                             <th class="text-muted">Surat Permohonan</th>
                             <td>
                                 @if ($permohonan->file_surat_permohonan)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($permohonan->file_surat_permohonan) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <a href="{{ route('file.download', ['jenis' => 'permohonan', 'path' => $permohonan->file_surat_permohonan]) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-file-earmark-pdf me-1"></i> Lihat Surat
                                     </a>
                                 @else
@@ -55,7 +55,7 @@
                             <th class="text-muted">Proposal</th>
                             <td>
                                 @if ($permohonan->file_proposal)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($permohonan->file_proposal) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <a href="{{ route('file.download', ['jenis' => 'permohonan', 'path' => $permohonan->file_proposal]) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-file-earmark-pdf me-1"></i> Lihat Proposal
                                     </a>
                                 @else

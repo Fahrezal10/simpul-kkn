@@ -22,6 +22,7 @@ use App\Http\Controllers\PerguruanTinggi\PermohonanController;
 use App\Http\Controllers\PerangkatDaerah\IsuStrategisController;
 use App\Http\Controllers\Shared\DashboardController;
 use App\Http\Controllers\Shared\DashboardGisController;
+use App\Http\Controllers\Shared\FileController;
 use App\Http\Controllers\Shared\MasterDataController;
 use App\Http\Controllers\Shared\NotificationController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,12 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+/* H1: Unduh dokumen terproteksi (disk private) */
+Route::get('/files/{jenis}/{path}', [FileController::class, 'download'])
+    ->middleware('auth')
+    ->where('path', '.*')
+    ->name('file.download');
+
 /* ===== UC-01: Registrasi akun Perguruan Tinggi (guest) ===== */
 Route::get('/register-pt', [PerguruanTinggiRegistrationController::class, 'showRegistrationForm'])
     ->middleware('guest')
@@ -63,9 +70,11 @@ Route::post('/register-pt', [PerguruanTinggiRegistrationController::class, 'regi
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    /* UC-09: Dashboard GIS (peta Leaflet) */
-    Route::get('/gis', [DashboardGisController::class, 'index'])->name('dashboard.gis');
-    Route::get('/gis/data', [DashboardGisController::class, 'data'])->name('dashboard.gis.data');
+    /* UC-09: Dashboard GIS (peta Leaflet) — lihat terbatas: pemangku (Bapperida/desa/kecamatan/OPD) */
+    Route::get('/gis', [DashboardGisController::class, 'index'])
+        ->middleware('role:bapperida,superadmin,kecamatan,desa,perangkat_daerah')->name('dashboard.gis');
+    Route::get('/gis/data', [DashboardGisController::class, 'data'])
+        ->middleware('role:bapperida,superadmin,kecamatan,desa,perangkat_daerah')->name('dashboard.gis.data');
 
     /* SYS-01: Notifikasi in-app */
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

@@ -14,6 +14,8 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet"
+          integrity="sha384-XXf0AGgTZKX14Ss8mMP9PBvKL30X2IV2bUXRk7uVHkTj9x9RsNF7b3WtVU0rSxxQ" crossorigin="anonymous">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
@@ -40,12 +42,14 @@
 
                 @php $role = optional(Auth::user()->role)->nama_role; @endphp
 
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard.gis*') ? 'active' : '' }}" href="{{ route('dashboard.gis') }}">
-                        <i class="bi bi-map"></i>
-                        <span>Peta (GIS)</span>
-                    </a>
-                </li>
+                @if (in_array($role, ['bapperida', 'superadmin', 'kecamatan', 'desa', 'perangkat_daerah'], true))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dashboard.gis*') ? 'active' : '' }}" href="{{ route('dashboard.gis') }}">
+                            <i class="bi bi-map"></i>
+                            <span>Peta (GIS)</span>
+                        </a>
+                    </li>
+                @endif
 
                 @if ($role === 'perguruan_tinggi' || $role === 'superadmin')
                     <li class="nav-section">Perguruan Tinggi</li>
@@ -341,6 +345,8 @@
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"
+            integrity="sha384-WsDNgY5x5JvPj7Nl/FJPzDTWqjjhBRc4jFmBbgR3D0Zk4DlcK0upfIvlHNYpjvZk" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     @stack('scripts')
 </body>

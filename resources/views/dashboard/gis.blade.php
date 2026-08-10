@@ -46,6 +46,14 @@
     <script>
         (function () {
             'use strict';
+
+            // H2: escape nilai user sebelum dimasukkan ke innerHTML (cek XSS).
+            function esc(v) {
+                var d = document.createElement('div');
+                d.textContent = v == null ? '' : String(v);
+                return d.innerHTML;
+            }
+
             var dataUrl = @json(route('dashboard.gis.data'));
 
             fetch(dataUrl)
@@ -69,19 +77,19 @@
                             return L.marker(latlng, { icon: ikon });
                         },
                         onEachFeature: function (feature, layer) {
-                            layer.bindPopup('<strong>' + feature.properties.nama_desa + '</strong><br><small>' + feature.properties.kecamatan + '</small>');
+                            layer.bindPopup('<strong>' + esc(feature.properties.nama_desa) + '</strong><br><small>' + esc(feature.properties.kecamatan) + '</small>');
                             layer.on('click', function () {
                                 var p = feature.properties;
                                 var kelompok = p.kelompok.length
                                     ? '<h6 class="mt-3 mb-1">Kelompok KKN Aktif</h6>' + p.kelompok.map(function (k) {
-                                        return '<div class="small border-bottom py-1"><strong>' + k.kode + '</strong> — ' + k.tema + '</div>';
+                                        return '<div class="small border-bottom py-1"><strong>' + esc(k.kode) + '</strong> — ' + esc(k.tema) + '</div>';
                                       }).join('')
                                     : '<p class="text-muted small mt-2 mb-0">Belum ada kelompok aktif.</p>';
-                                info.innerHTML = '<h6 class="mb-1">' + p.nama_desa + '</h6>'
-                                    + '<small class="text-muted">Kec. ' + p.kecamatan + ' · Kode ' + p.kode + '</small>'
-                                    + (p.penduduk ? '<div class="small mt-2"><i class="bi bi-people me-1"></i>' + p.penduduk.toLocaleString('id-ID') + ' penduduk</div>' : '')
-                                    + (p.profil ? '<div class="small text-muted mt-2">' + p.profil + '</div>' : '')
-                                    + (p.potensi.length ? '<div class="small mt-2"><i class="bi bi-lightning me-1 text-teal"></i>' + p.potensi.join(', ') + '</div>' : '')
+                                info.innerHTML = '<h6 class="mb-1">' + esc(p.nama_desa) + '</h6>'
+                                    + '<small class="text-muted">Kec. ' + esc(p.kecamatan) + ' · Kode ' + esc(p.kode) + '</small>'
+                                    + (p.penduduk ? '<div class="small mt-2"><i class="bi bi-people me-1"></i>' + Number(p.penduduk).toLocaleString('id-ID') + ' penduduk</div>' : '')
+                                    + (p.profil ? '<div class="small text-muted mt-2">' + esc(p.profil) + '</div>' : '')
+                                    + (p.potensi.length ? '<div class="small mt-2"><i class="bi bi-lightning me-1 text-teal"></i>' + p.potensi.map(esc).join(', ') + '</div>' : '')
                                     + kelompok;
                             });
                         }

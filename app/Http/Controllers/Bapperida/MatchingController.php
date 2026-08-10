@@ -124,11 +124,21 @@ class MatchingController extends Controller
 
     /**
      * BP-04 — Override: pilih satu desa sebagai lokasi final untuk kelompok.
-     * Catatan: hanya menyimpan pilihan (status 'dipilih' + desa_id pada kelompok).
-     * Penetapan status "Aktif" dikerjakan di branch verifikasi-kecamatan.
+     * Hanya boleh saat kelompok berstatus menunggu_matching / menunggu_verifikasi_kecamatan
+     * / menunggu_persetujuan (H3: cegah ubah lokasi pada kelompok aktif/selesai atau
+     * macet). Bila mengubah desa setelah verifikasi kecamatan selesai, verifikasi lama
+     * di-reset agar kesiapan desa baru tetap diperiksa.
      */
     public function override(KelompokKkn $kelompokKkn, Request $request): RedirectResponse
     {
+        if (! in_array($kelompokKkn->status, [
+            'menunggu_matching',
+            'menunggu_verifikasi_kecamatan',
+            'menunggu_persetujuan',
+        ], true)) {
+            return back()->with('error', 'Kelompok ini tidak dalam tahap yang dapat dipilih lokasinya.');
+        }
+
         $validated = $request->validate([
             'desa_id' => ['required', 'integer', 'exists:desa,id'],
         ]);
@@ -140,6 +150,17 @@ class MatchingController extends Controller
         }
         if ($dipilih->status === 'ditolak') {
             return back()->with('error', 'Desa ini pernah ditolak/tidak siap dan tidak dapat dipilih.');
+        }
+
+        // Bila mengganti desa yang sudah diverifikasi/diajukan persetujuan, kembalikan
+        // status ke menunggu_verifikasi_kecamatan dan bersihkan verifikasi lama agar
+        // desa baru tetap melewati pemeriksaan kecamatan (H3).
+        $desaBerubah = $kelompokKkn->desa_id !== $validated['desa_id'] && $kelompokKkn->desa_id !== null;
+        if ($desaBerubah && in_array($kelompokKkn->status, ['menunggu_verifikasi_kecamatan', 'menunggu_persetujuan'], true)) {
+            // Hapus verifikasi desa lama (yang sudah diverifikasi/diajukan persetujuan)
+            // agar desa baru tetap melewati pemeriksaan kecamatan.
+            $kelompokKkn->verifikasiKecamatan()->where('desa_id', $kelompokKkn->desa_id)->delete();
+            $kelompokKkn->update(['status' => 'menunggu_verifikasi_kecamatan']);
         }
 
         // Satu 'dipilih', sisanya kembali 'kandidat' (jejak 'ditolak' dipertahankan).
@@ -157,11 +178,19 @@ class MatchingController extends Controller
      */
     public function batalPilih(KelompokKkn $kelompokKkn): RedirectResponse
     {
+        if (! in_array($kelompokKkn->status, [
+            'menunggu_matching',
+            'menunggu_verifikasi_kecamatan',
+            'menunggu_persetujuan',
+        ], true)) {
+            return back()->with('error', 'Kelompok ini tidak dapat dibatalkan pemilihan lokasinya.');
+        }
+
         // Kembalikan ke kandidat; jejak 'ditolak' tetap dipertahankan.
         $kelompokKkn->riwayatMatching()
             ->where('status', '!=', 'ditolak')
             ->update(['status' => 'kandidat']);
-        $kelompokKkn->update(['desa_id' => null]);
+        $kelompokKkn->update(['desa_id' => null, 'status' => 'menunggu_matching']);
 
         return back()->with('success', "Pilihan lokasi kelompok {$kelompokKkn->kode_kelompok} dibatalkan.");
     }

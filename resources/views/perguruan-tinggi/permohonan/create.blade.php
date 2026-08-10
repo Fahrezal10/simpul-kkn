@@ -101,7 +101,8 @@
                                     <td><input type="text" name="mahasiswa[{{ $idx }}][prodi]" value="{{ $m['prodi'] ?? '' }}" class="form-control form-control-sm"></td>
                                     <td><input type="text" name="mahasiswa[{{ $idx }}][no_hp]" value="{{ $m['no_hp'] ?? '' }}" class="form-control form-control-sm"></td>
                                     <td>
-                                        <select name="mahasiswa[{{ $idx }}][dpl_id]" class="form-select form-select-sm dpl-select" required>
+                                        <select name="mahasiswa[{{ $idx }}][dpl_id]" class="form-select form-select-sm dpl-select"
+                                                data-searchable data-placeholder="Cari DPL…" required>
                                             <option value="">Pilih DPL</option>
                                             @foreach ($dosen as $d)
                                                 <option value="{{ $d->id }}" @selected(($m['dpl_id'] ?? '') == $d->id)>{{ $d->nama }}</option>
@@ -124,7 +125,8 @@
                                 <td><input type="text" name="mahasiswa[0][prodi]" class="form-control form-control-sm"></td>
                                 <td><input type="text" name="mahasiswa[0][no_hp]" class="form-control form-control-sm"></td>
                                 <td>
-                                    <select name="mahasiswa[0][dpl_id]" class="form-select form-select-sm dpl-select" required>
+                                    <select name="mahasiswa[0][dpl_id]" class="form-select form-select-sm dpl-select"
+                                            data-searchable data-placeholder="Cari DPL…" required>
                                         <option value="">Pilih DPL</option>
                                         @foreach ($dosen as $d)
                                             <option value="{{ $d->id }}">{{ $d->nama }}</option>
@@ -204,7 +206,7 @@
                     '<td><input type="text" name="mahasiswa[' + i + '][prodi]" class="form-control form-control-sm"></td>' +
                     '<td><input type="text" name="mahasiswa[' + i + '][no_hp]" class="form-control form-control-sm"></td>' +
                     '<td>' +
-                        '<select name="mahasiswa[' + i + '][dpl_id]" class="form-select form-select-sm dpl-select" required>' + dosenOptions + '</select>' +
+                        '<select name="mahasiswa[' + i + '][dpl_id]" class="form-select form-select-sm dpl-select" data-searchable data-placeholder="Cari DPL…" required>' + dosenOptions + '</select>' +
                         '<div class="dpl-baru-field mt-1 d-none">' +
                             '<input type="text" name="mahasiswa[' + i + '][dpl_baru_nama]" class="form-control form-control-sm mt-1" placeholder="Nama DPL baru">' +
                             '<input type="text" name="mahasiswa[' + i + '][dpl_baru_nip_niy]" class="form-control form-control-sm mt-1" placeholder="NIP/NIY">' +
@@ -213,6 +215,14 @@
                     '</td>' +
                     '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row"><i class="bi bi-trash"></i></button></td>';
                 tabel.querySelector('tbody').appendChild(tr);
+                // Baris baru: upgrade select DPL-nya ke Tom Select (searchable)
+                // lalu ikat toggle "DPL Baru".
+                var selectBaru = tr.querySelector('.dpl-select');
+                if (selectBaru && window.SimpulSelect) {
+                    window.SimpulSelect.reinit(tr);
+                    wireDplBaruToggle(selectBaru);
+                    toggleDplBaru(selectBaru);
+                }
             }
 
             // Delegasi event: tambah/ubah/hapus baris.
@@ -227,16 +237,11 @@
                 }
             });
 
+            // Delegasi native change (fallback bila Tom Select tidak diterapkan
+            // — mis. CDN gagal dimuat, select tetap native).
             tabel.addEventListener('change', function (e) {
                 var select = e.target.closest('.dpl-select');
                 if (!select) return;
-                toggleDplBaru(select);
-            });
-
-            // Buka field DPL baru pada load untuk baris yang memilih "+ DPL Baru"
-            // (penting saat reload halaman karena error validasi — old() memuat
-            // kembali nilai -1 tapi event change tidak terpicu).
-            tabel.querySelectorAll('.dpl-select').forEach(function (select) {
                 toggleDplBaru(select);
             });
 
@@ -245,6 +250,31 @@
                 if (!field) return;
                 var isBaru = parseInt(select.value, 10) < 0;
                 field.classList.toggle('d-none', !isBaru);
+            }
+
+            // Tom Select pada select yang di-upgrade tidak selalu menyalakan
+            // event 'change' native → ikat langsung ke instance agar toggle
+            // "DPL Baru" tetap bekerja apa pun metodenya.
+            function wireDplBaruToggle(select) {
+                if (!select || !select.tomselect) return;
+                select.tomselect.off('change');
+                select.tomselect.on('change', function () { toggleDplBaru(select); });
+            }
+
+            function wireAllDpl() {
+                tabel.querySelectorAll('.dpl-select').forEach(function (select) {
+                    wireDplBaruToggle(select);
+                    // Restore state "DPL Baru" bila select sudah punya nilai -1
+                    // (saat reload karena error validasi).
+                    toggleDplBaru(select);
+                });
+            }
+
+            // Saat DOM siap, Tom Select sudah diterapkan oleh SimpulSelect.init().
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', wireAllDpl);
+            } else {
+                wireAllDpl();
             }
         })();
     </script>

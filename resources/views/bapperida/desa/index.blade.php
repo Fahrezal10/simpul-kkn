@@ -17,7 +17,8 @@
         <div class="d-flex gap-2 flex-wrap align-items-center">
             <input type="text" id="searchDesa" class="form-control form-control-sm" style="max-width: 260px;"
                    placeholder="Cari nama desa / kode / kecamatan...">
-            <select id="filterKecamatan" class="form-select form-select-sm w-auto">
+            <select id="filterKecamatan" class="form-select form-select-sm w-auto"
+                    data-searchable data-placeholder="Cari kecamatan…">
                 <option value="">Semua Kecamatan</option>
             </select>
             <span class="text-muted small" id="infoTotal"></span>
@@ -96,6 +97,10 @@
                             opts += '<option value="' + k.id + '">' + k.nama_kecamatan + '</option>';
                         });
                         $kec.html(opts);
+                        // Opsi sudah terisi → upgrade ke dropdown searchable (Tom Select).
+                        // SimpulSelect.init() berjalan di awal halaman saat opsi masih
+                        // kosong, sehingga perlu di-reinit setelah populate.
+                        if (window.SimpulSelect) window.SimpulSelect.reinit($kec[0]);
                     }
                     if (!res.data.length) {
                         $tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="bi bi-geo-alt"></i><h6 class="mt-3">Tidak ada data desa</h6><p>Coba ubah kata kunci pencarian atau tambah desa baru.</p></div></td></tr>';
