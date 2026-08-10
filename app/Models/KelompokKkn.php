@@ -61,4 +61,14 @@ class KelompokKkn extends Model
     {
         return $this->hasMany(VerifikasiKecamatan::class);
     }
+
+    public function evaluasiDesa()
+    {
+        return $this->hasMany(EvaluasiDesa::class);
+    }
+
+    public function evaluasiDpl()
+    {
+        return $this->hasMany(EvaluasiDpl::class);
+    }
 }

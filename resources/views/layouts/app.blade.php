@@ -102,6 +102,12 @@
                             <span>Profil & Potensi Desa</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('desa.evaluasi.*') ? 'active' : '' }}" href="{{ route('desa.evaluasi.index') }}">
+                            <i class="bi bi-star"></i>
+                            <span>Evaluasi Kelompok</span>
+                        </a>
+                    </li>
                 @endif
 
                 @if ($role === 'perangkat_daerah' || $role === 'superadmin')
@@ -142,6 +148,12 @@
                         <a class="nav-link {{ request()->routeIs('dosen.laporan-akhir.*') ? 'active' : '' }}" href="{{ route('dosen.laporan-akhir.index') }}">
                             <i class="bi bi-file-earmark-check"></i>
                             <span>Verifikasi Laporan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('dosen.evaluasi.*') ? 'active' : '' }}" href="{{ route('dosen.evaluasi.index') }}">
+                            <i class="bi bi-star"></i>
+                            <span>Evaluasi Kelompok</span>
                         </a>
                     </li>
                 @endif

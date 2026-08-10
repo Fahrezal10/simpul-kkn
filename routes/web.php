@@ -7,7 +7,9 @@ use App\Http\Controllers\Bapperida\DesaController;
 use App\Http\Controllers\Bapperida\MatchingController;
 use App\Http\Controllers\Bapperida\PerguruanTinggiApprovalController;
 use App\Http\Controllers\Bapperida\PermohonanVerificationController;
+use App\Http\Controllers\Desa\EvaluasiDesaController;
 use App\Http\Controllers\Desa\ProfilDesaController;
+use App\Http\Controllers\Dosen\EvaluasiDplController;
 use App\Http\Controllers\Dosen\LaporanVerifikasiController;
 use App\Http\Controllers\Dosen\LogbookApprovalController;
 use App\Http\Controllers\Kecamatan\VerifikasiKecamatanController;
@@ -140,6 +142,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('permasalahan/{permasalahan}', [ProfilDesaController::class, 'permasalahanDestroy'])->name('desa.profil.permasalahan.destroy');
         Route::post('kebutuhan', [ProfilDesaController::class, 'kebutuhanStore'])->name('desa.profil.kebutuhan.store');
         Route::delete('kebutuhan/{kebutuhan}', [ProfilDesaController::class, 'kebutuhanDestroy'])->name('desa.profil.kebutuhan.destroy');
+
+        /* UC-13: Evaluasi kelompok oleh desa */
+        Route::get('evaluasi', [EvaluasiDesaController::class, 'index'])->name('desa.evaluasi.index');
+        Route::get('evaluasi/data', [EvaluasiDesaController::class, 'data'])->name('desa.evaluasi.data');
+        Route::get('evaluasi/{kelompokKkn}', [EvaluasiDesaController::class, 'show'])->name('desa.evaluasi.show');
+        Route::post('evaluasi/{kelompokKkn}', [EvaluasiDesaController::class, 'store'])->name('desa.evaluasi.store');
     });
 
     /* ===== UC-10: Input isu strategis oleh Operator Perangkat Daerah ===== */
@@ -191,6 +199,12 @@ Route::middleware('auth')->group(function () {
         Route::get('laporan-akhir/{laporan}', [LaporanVerifikasiController::class, 'show'])->name('dosen.laporan-akhir.show');
         Route::post('laporan-akhir/{laporan}/approve', [LaporanVerifikasiController::class, 'approve'])->name('dosen.laporan-akhir.approve');
         Route::post('laporan-akhir/{laporan}/revisi', [LaporanVerifikasiController::class, 'revisi'])->name('dosen.laporan-akhir.revisi');
+
+        /* UC-17: Evaluasi kelompok oleh DPL */
+        Route::get('evaluasi', [EvaluasiDplController::class, 'index'])->name('dosen.evaluasi.index');
+        Route::get('evaluasi/data', [EvaluasiDplController::class, 'data'])->name('dosen.evaluasi.data');
+        Route::get('evaluasi/{kelompokKkn}', [EvaluasiDplController::class, 'show'])->name('dosen.evaluasi.show');
+        Route::post('evaluasi/{kelompokKkn}', [EvaluasiDplController::class, 'store'])->name('dosen.evaluasi.store');
     });
 
     // Dashboard per-role → lewat DashboardController agar statistik & variabel
