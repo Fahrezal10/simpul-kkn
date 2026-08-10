@@ -38,7 +38,7 @@ class DashboardIntegrasiTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk();
 
-        // Data seeder: 1 PT (disetujui), 1 permohonan, 62 desa (31 kec × 2).
+        // Data seeder: 1 PT (disetujui), 1 permohonan, 318 desa (31 kecamatan, data resmi).
         $response->assertSee('Perguruan Tinggi');
         $response->assertSee('Permohonan');
         $response->assertSee('Kelompok KKN per Status');
@@ -71,9 +71,9 @@ class DashboardIntegrasiTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk();
 
-        // Kecamatan Haurgeulis memiliki 2 desa (Ciherang, Wanakaya).
+        // Kecamatan Haurgeulis memiliki 10 desa (data resmi indramayukab.go.id).
         $kecamatan = $this->kecHaurgeulis->kecamatan;
-        $this->assertSame(2, $kecamatan->desa()->count());
+        $this->assertSame(10, $kecamatan->desa()->count());
 
         $response->assertSee('Kecamatan Haurgeulis');
     }

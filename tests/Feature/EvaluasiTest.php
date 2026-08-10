@@ -59,7 +59,7 @@ class EvaluasiTest extends TestCase
     public function desa_tidak_bisa_mengevaluasi_kelompok_di_desa_lain(): void
     {
         // Pindahkan kelompok ke desa lain (bukan Wanakaya).
-        $desaLain = Desa::where('nama_desa', 'Ciherang')->firstOrFail();
+        $desaLain = Desa::where('nama_desa', 'Sukajati')->firstOrFail();
         $this->kelompok->update(['desa_id' => $desaLain->id]);
 
         $this->actingAs($this->desaUser)
@@ -70,7 +70,7 @@ class EvaluasiTest extends TestCase
             ])
             ->assertForbidden();
 
-        // Tidak ada evaluasi untuk desa Ciherang (kelompok dipindah dari Wanakaya).
+        // Tidak ada evaluasi untuk desa Sukajati (kelompok dipindah dari Wanakaya).
         $this->assertDatabaseMissing('evaluasi_desa', [
             'desa_id' => $desaLain->id,
             'kelompok_kkn_id' => $this->kelompok->id,

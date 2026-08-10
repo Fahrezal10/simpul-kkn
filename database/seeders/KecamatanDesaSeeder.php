@@ -8,52 +8,150 @@ use Illuminate\Support\Facades\DB;
 class KecamatanDesaSeeder extends Seeder
 {
     /**
-     * Data MASTER WILAYAH (development placeholder).
+     * Data MASTER WILAYAH Kabupaten Indramayu.
      *
-     * ⚠️ DAFTAR 31 KECAMATAN Kabupaten Indramayu dengan kode_wilayah pendekatan.
-     * Ini DATA SEMENTARA untuk mengembangkan & menguji (Matching System, Dashboard GIS)
-     * sebelum data riil (±309 desa) diterima dari Bapperida.
-     * Saat data riil tiba, ganti isi array di bawah dengan data resmi
-     * (atau ubah seeder ini menjadi pembaca CSV/Excel) lalu jalankan:
-     *      php artisan migrate:fresh --seed
+     * Sumber: https://indramayukab.go.id/daftar-nama-desa-di-kabupaten-indramayu/
+     * (31 kecamatan; 318 entri desa/kelurahan sesuai tabel resmi situs Pemkab).
      *
-     * Struktur: nama_kecamatan => [ [nama_desa, jumlah_penduduk], ... ]
-     * Koordinat lat/long desa memakai nilai perkiraan di area Indramayu.
+     * Struktur: nama_kecamatan => [nama_desa, ...]
+     *
+     * Catatan:
+     *  - jumlah_penduduk dikosongkan (null) karena tidak tersedia di sumber;
+     *    menunggu data riil dari Bapperida. UI menampilkan '-' sampai terisi.
+     *  - kode_wilayah memakai pola '3201' + nomor urut kecamatan + nomor urut desa
+     *    (pendekatan, bukan kode Kemendagri final).
+     *  - Koordinat lat/long & luas_wilayah memakai nilai perkiraan deterministik
+     *    di area Indramayu agar GIS tetap berfungsi (bukan data resmi Bapperida).
      */
     public function run(): void
     {
         $kecamatan = [
-            'Haurgeulis'      => [['Ciherang', 5200], ['Wanakaya', 6100]],
-            'Gantar'          => [['Situraja', 4800], ['Mulyasari', 3900]],
-            'Kroya'           => [['Tanjungkerta', 3500], ['Sukaslamet', 4200]],
-            'Gabuswetan'      => [['Gabuskulon', 4600], ['Rancahan', 4300]],
-            'Cikedung'        => [['Jambak', 5100], ['Mundakjaya', 4900]],
-            'Terisi'          => [['Karangasem', 3700], ['Rajasinga', 3300]],
-            'Lelea'           => [['Lelea', 5800], ['Tugu', 4400]],
-            'Bangodua'        => [['Bangodua', 5000], ['Wanasari', 3600]],
-            'Tukdana'         => [['Rancajawat', 4100], ['Gadel', 3800]],
-            'Widasari'        => [['Widasari', 5400], ['Bunder', 4700]],
-            'Kertasemaya'     => [['Kertasemaya', 6200], ['Jengkok', 4500]],
-            'Jatibarang'      => [['Jatibarang', 7000], ['Pilangsari', 5100]],
-            'Sliyeg'          => [['Sliyeg', 5600], ['Gadingan', 4200]],
-            'Juntinyuat'      => [['Juntinyuat', 6800], ['Lombang', 5400]],
-            'Balongan'        => [['Balongan', 5300], ['Tegalsembadra', 4600]],
-            'Indramayu'       => [['Pabeanudik', 7200], ['Karangsong', 6600]],
-            'Sindang'         => [['Penganjang', 4900], ['Babadan', 4500]],
-            'Cantigi'         => [['Panyingkiran', 3300], ['Cemara', 2900]],
-            'Pasekan'         => [['Pasekan', 3500], ['Brondong', 3100]],
-            'Lohbener'        => [['Lohbener', 5200], ['Kiajaran', 4000]],
-            'Arahan'          => [['Arahan', 4400], ['Pangkalan', 2600]],
-            'Losarang'        => [['Losarang', 5900], ['Rajaiyang', 4800]],
-            'Kandanghaur'     => [['Kandanghaur', 8100], ['Ilir', 6200]],
-            'Bongas'          => [['Bongas', 4700], ['Margamulya', 3900]],
-            'Anjatan'         => [['Anjatan', 7700], ['Bugis', 5800]],
-            'Sukra'           => [['Sukra', 3600], ['Sukrawetan', 3200]],
-            'Karangampel'     => [['Karangampel', 6000], ['Benda', 4500]],
-            'Kedokanbunder'   => [['Kedokanbunder', 4100], ['Cangkring', 3600]],
-            'Krangkeng'       => [['Krangkeng', 5500], ['Kapricayan', 4700]],
-            'Patrol'          => [['Patrol', 6300], ['Bulusan', 5200]],
-            'Kedokan Agung'   => [['Kedokan Agung', 4300], ['Wanasari Lor', 3400]],
+            'Haurgeulis' => [
+                'Haurkolot', 'Haurgeulis', 'Sukajati', 'Wanakaya', 'Karangtumaritis',
+                'Kertanegara', 'Cipancuh', 'Mekarjati', 'Sidadadi', 'Sumbermulya',
+            ],
+            'Gantar' => [
+                'Bantarwaru', 'Sanca', 'Mekarjaya', 'Gantar', 'Situraja', 'Baleraja', 'Mekarwaru',
+            ],
+            'Kroya' => [
+                'Sukaslamet', 'Tanjungkerta', 'Kroya', 'Sumbon', 'Sukamelang',
+                'Temiyang', 'Temiyangsari', 'Jayamulya', 'Sumberjaya',
+            ],
+            'Gabuswetan' => [
+                'Kedungdawa', 'Babakanjaya', 'Gabuskulon', 'Sekarmulya', 'Kedokangabus',
+                'Rancamulya', 'Rancahan', 'Gabuswetan', 'Drunten Wetan', 'Drunten Kulon',
+            ],
+            'Cikedung' => [
+                'Loyang', 'Amis', 'Jatisura', 'Jambak', 'Cikedung', 'Cikedung Lor', 'Mundakjaya',
+            ],
+            'Terisi' => [
+                'Cikawung', 'Jatimunggul', 'Jatimulya', 'Plosokerep', 'Rajasinga',
+                'Karangasem', 'Manggungan', 'Cibereng', 'Kendayakan',
+            ],
+            'Lelea' => [
+                'Tempel Kulon', 'Tunggulpayung', 'Tugu', 'Nunuk', 'Tempel', 'Pangauban',
+                'Telagasari', 'Langgengsari', 'Tamansari', 'Lelea', 'Cempeh',
+            ],
+            'Bangodua' => [
+                'Rancasari', 'Mulyasari', 'Bangodua', 'Beduyut', 'Karanggetas',
+                'Tegalgirang', 'Wanasari', 'Malangsari',
+            ],
+            'Tukdana' => [
+                'Mekarsari', 'Bodas', 'Gadel', 'Rancajawat', 'Kerticala', 'Sukamulya',
+                'Karangkerta', 'Cangko', 'Pagedangan', 'Sukaperna',
+                'Sukadana', 'Tukdana', 'Lajer',
+            ],
+            'Widasari' => [
+                'Mekarsari', 'Bangkaloa Ilir', 'Widasari', 'Kalensari', 'Bunder', 'Ujungaris',
+                'Kongsijaya', 'Ujungjaya', 'Ujungpendokjaya', 'Leuwigede', 'Kasmaran',
+            ],
+            'Kertasemaya' => [
+                'Sukawera', 'Tulungagung', 'Jengkok', 'Tegalwirangrong', 'Manguntara', 'Jambe',
+                'Lemahayu', 'Tenajar Kidul', 'Kertasemaya', 'Kliwed', 'Tenajar',
+                'Laranganjambe', 'Tenajar Lor',
+            ],
+            'Sukagumiwang' => [
+                'Gedangan', 'Cibeber', 'Bondan', 'Gunungsari', 'Sukagumiwang', 'Tersana', 'Cadangpinggan',
+            ],
+            'Krangkeng' => [
+                'Tanjakan', 'Purwajaya', 'Kapringan', 'Singakerta', 'Dukuhjati', 'Tegalmulya',
+                'Kedungwungu', 'Srengseng', 'Luwunggesik', 'Kalianyar', 'Krangkeng',
+            ],
+            'Karangampel' => [
+                'Mundu', 'Kaplonganlor', 'Tanjungpura', 'Tanjungsari', 'Pringgacala', 'Benda',
+                'Sendang', 'Karangampel Kidul', 'Karangampel', 'Dukuh Jeruk', 'Dukuh Tengah',
+            ],
+            'Kedokanbunder' => [
+                'Jayalaksana', 'Kedokanbunder Wetan', 'Kaplongan', 'Kedokan Agung',
+                'Kedokanbunder', 'Jayawinangun', 'Cangkingan',
+            ],
+            'Juntinyuat' => [
+                'Limbangan', 'Segeran Kidul', 'Segeran', 'Juntiweden', 'Juntikebon', 'Dadap',
+                'Juntinyuat', 'Juntikedokan', 'Pondoh', 'Sambimaya', 'Tinumpuk', 'Lombang',
+            ],
+            'Sliyeg' => [
+                'Longok', 'Sleman', 'Tambi', 'Sudikampiran', 'Tambi Lor', 'Sleman Lor', 'Majasari',
+                'Majasih', 'Sliyeg', 'Gadingan', 'Mekargading', 'Sliyeglor', 'Tugu Kidul', 'Tugu',
+            ],
+            'Jatibarang' => [
+                'Lobener Lor', 'Sukalila', 'Pilangsari', 'Jatibarang Baru', 'Bulak', 'Bulak Lor',
+                'Jatibarang', 'Kebulen', 'Pawidean', 'Jatisawit', 'Jatisawit Lor', 'Krasak',
+                'Kalimati', 'Malangsemirang', 'Lobener',
+            ],
+            'Balongan' => [
+                'Majakerta', 'Tegalsembadra', 'Sukareja', 'Sukaurip', 'Rawadalem', 'Gelarmendala',
+                'Tegalurung', 'Balongan', 'Sudimampir', 'Sudimampirlor',
+            ],
+            'Indramayu' => [
+                'Tambak', 'Telukagung', 'Plumbon', 'Dukuh', 'Pekandangan Jaya', 'Singaraja',
+                'Singajaya', 'Pekandangan', 'Bojongsari', 'Kepandean', 'Karangmalang',
+                'Karanganyar', 'Lemahmekar', 'Lemahabang', 'Margadadi', 'Paoman',
+                'Karangsong', 'Pabeanudik',
+            ],
+            'Sindang' => [
+                'Wanantara', 'Panyindangan Kulon', 'Rambatan Wetan', 'Panyindangan Wetan', 'Kenanga',
+                'Terusan', 'Dermayu', 'Sindang', 'Penganjang', 'Babadan',
+            ],
+            'Cantigi' => [
+                'Cemara', 'Cangkring', 'Cantigi Kulon', 'Cantigi Wetan',
+                'Panyingkiran Lor', 'Panyingkiran Kidul', 'Lamarantarung',
+            ],
+            'Pasekan' => [
+                'Karanganyar', 'Pagirikan', 'Pasekan', 'Brondong', 'Pabeanilir', 'Totoran',
+            ],
+            'Lohbener' => [
+                'Rambatan Kulon', 'Kiajaran Kulon', 'Kijaran Wetan', 'Lanjan', 'Langut',
+                'Larangan', 'Waru', 'Legok', 'Bojongslawi', 'Lohbener', 'Pamayahan', 'Sindangkerta',
+            ],
+            'Arahan' => [
+                'Cidempet', 'Sukasari', 'Arahan Kidul', 'Arahan Lor', 'Linggajati',
+                'Tawangsari', 'Sukadadi', 'Pranggong',
+            ],
+            'Losarang' => [
+                'Ranjeng', 'Cemara Kulon', 'Krimun', 'Puntang', 'Pegagan', 'Rajaiyang',
+                'Jangga', 'Jumbleng', 'Pangkalan', 'Losarang', 'Muntur', 'Santing',
+            ],
+            'Kandanghaur' => [
+                'Soge', 'Curug', 'Pranti', 'Wirakanan', 'Karangmulya', 'Karanganyar',
+                'Wirapanjunan', 'Parean Girang', 'Bulak', 'Ilir', 'Eretan Wetan',
+                'Eretan Kulon', 'Kertawinangon',
+            ],
+            'Bongas' => [
+                'Plawangan', 'Cipedang', 'Sidamulya', 'Margamulya', 'Kertajaya',
+                'Bongas', 'Cipaat', 'Kertamulya',
+            ],
+            'Anjatan' => [
+                'Anjatan Utara', 'Mangunjaya', 'Bugistua', 'Bugis', 'Salamdarma', 'Kedungwungu',
+                'Wanguk', 'Lempuyang', 'Kopyah', 'Anjatan Baru', 'Anjatan', 'Cilandak', 'Cilandak Lor',
+            ],
+            'Sukra' => [
+                'Karanglayung', 'Bogor', 'Sukra', 'Ujunggebang', 'Tegaltaman',
+                'Sukrawetan', 'Sumuradem', 'Sumuradem Timur',
+            ],
+            'Patrol' => [
+                'Limpas', 'Patrol', 'Arjasari', 'Sukahaji', 'Bugel', 'Patrollor',
+                'Patrol Baru', 'Mekarsari',
+            ],
         ];
 
         // Koordinat acuan area Indramayu (lat/-lng) untuk menggeser tiap desa secara deterministik.
@@ -71,7 +169,7 @@ class KecamatanDesaSeeder extends Seeder
 
             $idx++;
 
-            foreach ($desas as $idxDesa => [$namaDesa, $populasi]) {
+            foreach ($desas as $idxDesa => $namaDesa) {
                 $kodeDesa = '3201' . str_pad($idx, 2, '0', STR_PAD_LEFT)
                             . str_pad(($idxDesa + 1), 2, '0', STR_PAD_LEFT);
 
@@ -81,11 +179,11 @@ class KecamatanDesaSeeder extends Seeder
                         'user_id' => null, // operator desa diisi belakangan saat akun dibuat
                         'kecamatan_id' => $kecamatanId,
                         'nama_desa' => $namaDesa,
-                        'jumlah_penduduk' => $populasi,
+                        'jumlah_penduduk' => null, // menunggu data riil dari Bapperida
                         'luas_wilayah' => round(1.5 + (($idx + $idxDesa) % 9) * 0.6, 2),
                         'latitude' => round($baseLat + ($idx + $idxDesa) * 0.002, 7),
                         'longitude' => round($baseLng + (($idx * 2) + $idxDesa) * 0.003, 7),
-                        'profil_umum' => 'Data placeholder pengembangan. Menunggu profil resmi dari Bapperida.',
+                        'profil_umum' => 'Data wilayah Kabupaten Indramayu (sumber: indramayukab.go.id).',
                         'updated_at' => now(),
                         'created_at' => now(),
                     ]
