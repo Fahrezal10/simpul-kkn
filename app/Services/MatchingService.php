@@ -58,8 +58,19 @@ class MatchingService
             ->pluck('desa_id')
             ->flip();
 
+        // Kelompok lain dalam permohonan yang sama — untuk flag tumpang tindih.
+        // Di-load sekali (hindari N+1 lazy-load per desa).
+        $kelompokLain = $kelompok->permohonanKkn
+            ->kelompokKkn
+            ->where('id', '!=', $kelompok->id)
+            ->whereIn('status', ['menunggu_verifikasi_kecamatan', 'menunggu_persetujuan', 'aktif'])
+            ->values();
+
+        // Isu strategis di-load sekali; filter nama desa dilakukan in-memory.
+        $semuaIsu = \App\Models\IsuStrategis::get();
+
         foreach ($desas as $desa) {
-            $skor = $this->scoreDesa($kelompok, $desa, $tema, $bidang);
+            $skor = $this->scoreDesa($kelompok, $desa, $tema, $bidang, $semuaIsu);
 
             // Jika desa pernah ditolak, turunkan skor ke nilai sangat rendah
             // (di bawah semua kandidat) tetapi tetap tampil sebagai info.
@@ -75,7 +86,7 @@ class MatchingService
                 'skor_prioritas'     => round($skor['prioritas'], 2),
                 'skor_kebutuhan'     => round($skor['kebutuhan'], 2),
                 'skor_total'         => round($skor['total'], 2),
-                'flag_tumpang_tindih'=> $this->isTumpangTindih($kelompok, $desa),
+                'flag_tumpang_tindih'=> $this->isTumpangTindih($kelompokLain, $desa, $tema),
                 'ditolak_sebelumnya' => $ditolakSebelumnya,
                 'alasan'             => $skor['alasan'],
             ];
@@ -176,14 +187,15 @@ class MatchingService
     /**
      * @return array{tema: float, bidang: float, prioritas: float, kebutuhan: float, total: float, alasan: array<int,string>}
      */
-    private function scoreDesa(KelompokKkn $kelompok, Desa $desa, string $tema, string $bidang): array
+    private function scoreDesa(KelompokKkn $kelompok, Desa $desa, string $tema, string $bidang, $semuaIsu): array
     {
         // Gabungkan seluruh teks desa yang relevan per dimensi.
         $teksKebutuhan = $desa->kebutuhan->pluck('kategori')->merge($desa->kebutuhan->pluck('deskripsi'))->implode(' ');
         $teksPotensi   = $desa->potensi->pluck('kategori')->merge($desa->potensi->pluck('deskripsi'))->implode(' ');
-        $isu = \App\Models\IsuStrategis::where('wilayah_terdampak', $desa->nama_desa)
-            ->orWhere('wilayah_terdampak', 'like', '%'.$desa->nama_desa.'%')
-            ->get();
+        $isu = $semuaIsu->filter(function ($i) use ($desa) {
+            $wilayah = (string) $i->wilayah_terdampak;
+            return str_contains($wilayah, $desa->nama_desa);
+        });
         $teksIsuRekom = $isu->pluck('rekomendasi_tema')->implode(' ');
         $teksIsuKat   = $isu->pluck('kategori_isu')->implode(' ');
 
@@ -245,15 +257,14 @@ class MatchingService
     /**
      * Desa dikatakan tumpang tindih bila sudah dipakai kelompok lain yang temanya
      * mirip (overlap kata ≥ 0.5) — cegah banyak KKN tema serupa di satu desa.
+     *
+     * @param \Illuminate\Support\Collection<int, KelompokKkn> $kelompokLain kelompok lain yang sudah dimuat
      */
-    private function isTumpangTindih(KelompokKkn $kelompok, Desa $desa): bool
+    private function isTumpangTindih($kelompokLain, Desa $desa, string $tema): bool
     {
-        return $kelompok->permohonanKkn
-            ->kelompokKkn
+        return $kelompokLain
             ->where('desa_id', $desa->id)
-            ->where('id', '!=', $kelompok->id)
-            ->whereIn('status', ['menunggu_verifikasi_kecamatan', 'menunggu_persetujuan', 'aktif'])
-            ->contains(fn ($k) => $this->similarity((string) $kelompok->tema, (string) $k->tema) >= 0.5);
+            ->contains(fn ($k) => $this->similarity($tema, (string) $k->tema) >= 0.5);
     }
 
     /* ------------------------------------------------------------------
