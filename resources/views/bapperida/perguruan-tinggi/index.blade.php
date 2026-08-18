@@ -10,7 +10,8 @@
     {{-- Filter status --}}
     <div class="mb-3">
         <div class="d-flex gap-2 flex-wrap align-items-center">
-            <select id="filterStatus" class="form-select form-select-sm w-auto">
+            <select id="filterStatus" class="form-select form-select-sm w-auto"
+                    data-searchable data-placeholder="Cari status…">
                 <option value="">Semua Status</option>
                 <option value="menunggu">Menunggu</option>
                 <option value="disetujui">Disetujui</option>

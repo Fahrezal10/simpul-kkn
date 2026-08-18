@@ -97,7 +97,14 @@
         function makeSelect(el, opts) {
             if (!tsAvailable()) return null;
             try {
-                var ts = new window.TomSelect(el, opts || baseOptions());
+                var o = opts || baseOptions();
+                // Di dalam modal Bootstrap (mis. Master Data), dropdown Tom Select
+                // bisa terpotong oleh overflow modal → lampirkan ke modal agar
+                // daftar opsi & kotak cari tampil penuh.
+                if (!o.dropdownParent && el.closest && el.closest('.modal')) {
+                    o.dropdownParent = el.closest('.modal');
+                }
+                var ts = new window.TomSelect(el, o);
                 // Warisi state error validasi ke wrapper Tom Select (Bootstrap).
                 if (el.classList.contains('is-invalid') && ts.wrapper) {
                     ts.wrapper.classList.add('is-invalid');

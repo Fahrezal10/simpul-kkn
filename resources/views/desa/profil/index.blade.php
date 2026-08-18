@@ -121,7 +121,7 @@
                             <textarea name="deskripsi" class="form-control form-control-sm" rows="2" placeholder="Deskripsi kebutuhan" required maxlength="2000"></textarea>
                         </div>
                         <div class="col-12">
-                            <select name="prioritas" class="form-select form-select-sm">
+                            <select name="prioritas" class="form-select form-select-sm" data-searchable data-placeholder="Urutan prioritas…">
                                 <option value="tinggi">Tinggi</option>
                                 <option value="sedang" selected>Sedang</option>
                                 <option value="rendah">Rendah</option>

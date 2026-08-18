@@ -49,7 +49,8 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Riwayat Logbook</h6>
         <div class="d-flex gap-2 align-items-center">
-            <select id="filterStatus" class="form-select form-select-sm w-auto">
+            <select id="filterStatus" class="form-select form-select-sm w-auto"
+                    data-searchable data-placeholder="Cari status…">
                 <option value="">Semua Status</option>
                 <option value="menunggu">Menunggu</option>
                 <option value="disetujui">Disetujui</option>

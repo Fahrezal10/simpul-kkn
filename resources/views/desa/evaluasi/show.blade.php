@@ -30,7 +30,7 @@
                     @csrf
                     <div class="col-md-4">
                         <label class="form-label">Kualitas Program</label>
-                        <select name="skor_kualitas_program" class="form-select" required>
+                        <select name="skor_kualitas_program" class="form-select" data-searchable data-placeholder="Pilih 1–5…" required>
                             @for ($i = 1; $i <= 5; $i++)
                                 <option value="{{ $i }}" {{ $evaluasi && $evaluasi->skor_kualitas_program == $i ? 'selected' : '' }}>{{ $i }} {{ $i === 1 ? '(Buruk)' : ($i === 5 ? '(Sangat Baik)' : '') }}</option>
                             @endfor
@@ -38,7 +38,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Manfaat Bagi Desa</label>
-                        <select name="skor_manfaat" class="form-select" required>
+                        <select name="skor_manfaat" class="form-select" data-searchable data-placeholder="Pilih 1–5…" required>
                             @for ($i = 1; $i <= 5; $i++)
                                 <option value="{{ $i }}" {{ $evaluasi && $evaluasi->skor_manfaat == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor
@@ -46,7 +46,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label">Kedisiplinan</label>
-                        <select name="skor_kedisiplinan" class="form-select" required>
+                        <select name="skor_kedisiplinan" class="form-select" data-searchable data-placeholder="Pilih 1–5…" required>
                             @for ($i = 1; $i <= 5; $i++)
                                 <option value="{{ $i }}" {{ $evaluasi && $evaluasi->skor_kedisiplinan == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor

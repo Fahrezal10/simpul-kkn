@@ -121,6 +121,7 @@
                                         @elseif (($col['type'] ?? 'text') === 'select')
                                             <select name="{{ $col['key'] }}" id="f_{{ $col['key'] }}"
                                                     class="form-select"
+                                                    data-searchable data-placeholder="Pilih {{ $col['label'] }}…"
                                                     {{ !empty($col['required']) ? 'required' : '' }}>
                                                 <option value="">— Pilih —</option>
                                                 @foreach ($col['options'] ?? [] as $val => $optLabel)
@@ -307,7 +308,13 @@
                         var $el = $('#f_' + col.key);
                         var val = row[col.key] != null ? String(row[col.key]) : '';
                         if ($el.is('select')) {
-                            $el.val(val).trigger('change');
+                            // Select searchable (Tom Select) perlu di-set via API
+                            // SimpulSelect, bukan val() langsung.
+                            if (window.SimpulSelect && $el.is('[data-searchable]')) {
+                                window.SimpulSelect.setValue($el[0], val);
+                            } else {
+                                $el.val(val);
+                            }
                         } else {
                             $el.val(val);
                         }
